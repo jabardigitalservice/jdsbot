@@ -1,0 +1,7 @@
+pip>20.0.0
+
+requests==2.24.0
+python-dotenv==0.14
+
+flask==1.1.2
+gunicorn==20.0.4
