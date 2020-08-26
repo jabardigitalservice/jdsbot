@@ -116,13 +116,13 @@ def process_report(telegram_item, fields, image_data):
     if 'peserta' in fields:
         result_msg = "Results:\n" 
         for username in fields['peserta']:
-            status = EMOJI_SUCCESS
+            status = ' | Berhasil ' + EMOJI_SUCCESS
             try:
                 result = post_report_single(username, fields, image_data)
             except Exception as e:
                 print(e)
                 traceback.print_exc() 
-                status = '{} ({})'.format(EMOJI_FAILED, e)
+                status = ' | Gagal - {}'.format(e)
             result_msg += "- {} {}\n".format(username, status) 
 
         run_command('/sendMessage', {
@@ -183,7 +183,7 @@ def action_lapor(item):
 def action_about(telegram_item):
     """ action for /about command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
-    msg = """Halo\! Aku adalah JDSBot\. Aku ditugaskan untuk membantu melakukan rekap laporan harian\. Silahkan ketik chat `/help` untuk melihat command\-command yang bisa aku lakukan\! """
+    msg = """Halo\! Aku adalah JDSBot\. Aku ditugaskan untuk membantu melakukan rekap evidence gambar, nama proyek, dan nama task laporan harian otomatis ke aplikasi digiteam groupware\. Silahkan ketik di kolom chat `/help` untuk melihat command\-command yang bisa aku lakukan\! """
     run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
@@ -194,31 +194,34 @@ def action_help(telegram_item):
     """ action for /help command """
     msg = """Command\-command yang tersedia:
 
-    \- `/help` : menampilkan pesan ini
-    \- `/about` : menampilkan penjelasan tentang bot ini
-    \- `/lapor` : Mengirimkan laporan groupware JDS\. Cara menggunakan:
+\- `/help` : menampilkan command\-command cara untuk menggunakan bot ini
+\- `/about` : menampilkan penjelasan tentang bot ini
+\- `/lapor` : Mengirimkan laporan ke aplikasi digiteam groupware JDS
 
-        \- siapkan gambar evidence yang akan digunakan\. kemudian chat di grup ini dengan format caption seperti ini: 
-        ```
-        /lapor <nama_project_di_groupware> | <nama_kegiatan>
-        Opsi1: isiopsi1
-        Opsi2: isiopsi2
-        Opsi3: isiopsi3
-        Peserta: <user_groupware_1> , <user_groupware_2>
-        ```
-        \- atau bisa juga post dulu gambar evidence nya, kemudian reply gambar tersebut dengan format di atas
-        \- untuk Opsi\-opsi semuanya adalah opsional dengan pilihan sebagai berikut:
-            \- `Tanggal` : isi dengan tanggal dengan format '1945\-08\-17'\. default hari ini
-            \- `Kesulitan` : isi dengan angka 1\-5\. default 3
-            \- `Penyelenggara` : penyelenggara, defaultnya 'PLD'
-            \- `TugasUtama` : isi dengan `true`/`false`\. defaultnya `true`
-            \- `Lokasi` : defaultnya 'WFH',
-            \- `Lampiran`: isi dengan url lampiran\. defaultnya kosong
-        \- Untuk peserta, yang digunakan adalah username groupware\. Username groupware diambil dari username gmail yang digunakan di groupware, misal email `jdsitdev@gmail.com` maka username yang digunakan adalah `jdsitdev`\.
-        \- saat ini untuk lampiran hanya mendukung berbentuk url \(blm support upload lampiran\)
-        \- semua hasil input groupware bisa di edit lagi melalui akun groupware masing2
+Cara menggunakan command `/lapor`:
+1\. Post dulu gambar evidence nya ke telegram,
+2\. Reply gambar tersebut dengan format command seperti berikut :
+
+```
+/lapor <nama_project_di_groupware> | <nama_kegiatan>
+Peserta: <user_groupware_1> , <user_groupware_2>
+```
+
+Keterangan Opsi\-Opsi:
+\- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
+\- `<nama_kegiatan>` : isi dengan nama tugas yang dikerjakan di project tersebut\. bisa diisi dengan teks yang panjang\.
+\- `Peserta`: yang digunakan adalah username yang digiteam groupware\. Username groupware diambil dari username gmail yang digunakan di aplikasi digiteam groupware\, misal email `jdsitdev@gmail.com` maka username yang digunakan adalah `jdsitdev`\.
+  
+Keterangan tambahan :       
+\- Semua hasil input di bot telegram ini bisa di edit lagi melalui akun digiteam groupware masing2
+\- Kami sudah menyiapkan nilai default untuk Atribut lain\. Silahkan langsung dapat di sesuaikan value atribut lain ini di aplikasi groupware 
+\- Saat ini kita tengah mengembangkan agar semua atribut ini dapat diisi semua via telegram
         
-    \- `/tambah` :  \(COMING SOON\) Menambahkan peserta ke isian laporan yang udah ada\. Cara menggunakan cukup dengan reply pesan laporan sebelumnya dengan format berikut: `/tambah <user_groupware_1> , <user_groupware_2>`
+Contoh Reply command:
+```
+/lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
+Peserta: rizkiadam01
+```
 
     """
     run_command('/sendMessage', {

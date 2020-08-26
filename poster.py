@@ -64,7 +64,7 @@ def post_report(auth_token, data, files):
         raise Exception('Error response: ' + req.text)
 
 if __name__ == '__main__':
-    TEST_USER = os.getenv('TEST_USER')
+    TEST_USER = os.getenv('TEST_USER', 'testuser')
     auth_token = get_token(TEST_USER, TEST_USER)
     print('auth_token :', auth_token)
 
