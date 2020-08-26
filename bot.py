@@ -70,9 +70,10 @@ def process_images(photo_list):
 
     return get_file(largest_photo['file_id'])
 
-def post_report_single(username, fields, image_data):
+def post_report_single(username, input_fields, image_data):
     """ send a single report """
     print('sending report for ' + username)
+    fields = json.loads(json.dumps(input_fields)) # clone fields to avoid changing source values
     field_aliases = {
         'tanggal': 'dateTask',
         'kesulitan' : 'difficultyTask',
@@ -87,7 +88,7 @@ def post_report_single(username, fields, image_data):
             fields[field_aliases[field]] = fields[field]
 
     defaults_values = {
-        'dateTask' : datetime.now().strftime('%Y-%m-%d') + poster.TIMESTAMP_TRAIL_FORMAT,
+        'dateTask' : datetime.now().strftime('%Y-%m-%d'),
         'difficultyTask': 3,
         'organizerTask' : 'PLD',
         'isMainTask' : 'true',
@@ -98,6 +99,8 @@ def post_report_single(username, fields, image_data):
     for field in defaults_values:
         if field not in fields:
             fields[field] = defaults_values[field]
+
+    fields['dateTask'] += poster.TIMESTAMP_TRAIL_FORMAT
 
     files = {
         'evidenceTask' : image_data['content'],
