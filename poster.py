@@ -1,4 +1,5 @@
 import os
+import re
 
 import requests
 from dotenv import load_dotenv
@@ -47,6 +48,13 @@ def post_report(auth_token, data, files):
         raise Exception("projectName '{}' not found".format(data['projectName']))
     else:
         data['projectId'] = project_list[data['projectName']]
+
+    # dateTask validation
+    if 'dateTask' not in data or len(data['dateTask'].strip()) < 1:
+        raise ValueError('dateTask field cannot be empty')
+
+    if not re.match("^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\dZ$",data['dateTask']):
+        raise ValueError('dateTask format mismatch')
 
     headers = {
         'Authorization': 'Bearer ' + auth_token,
