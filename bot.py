@@ -74,12 +74,12 @@ def post_report_single(username, fields, image_data):
     """ send a single report """
     print('sending report for ' + username)
     field_aliases = {
-        'tanggal': 'dateTask', 
+        'tanggal': 'dateTask',
         'kesulitan' : 'difficultyTask',
         'penyelenggara': 'organizerTask',
-        'tugasutama': 'isMainTask', 
+        'tugasutama': 'isMainTask',
         'lokasi': 'workPlace',
-        'lampiran': 'documentTask', 
+        'lampiran': 'documentTask',
     }
 
     for field in field_aliases:
@@ -87,13 +87,13 @@ def post_report_single(username, fields, image_data):
             fields[field_aliases[field]] = fields[field]
 
     defaults_values = {
-        'dateTask' : datetime.now().strftime('%Y-%m-%d') + poster.TIMESTAMP_TRAIL_FORMAT, 
-        'difficultyTask': 3, 
+        'dateTask' : datetime.now().strftime('%Y-%m-%d') + poster.TIMESTAMP_TRAIL_FORMAT,
+        'difficultyTask': 3,
         'organizerTask' : 'PLD',
-        'isMainTask' : 'true', 
-        'isDocumentLink' : 'true', 
+        'isMainTask' : 'true',
+        'isDocumentLink' : 'true',
         'workPlace' : 'WFH',
-        'documentTask': 'null', 
+        'documentTask': 'null',
     }
     for field in defaults_values:
         if field not in fields:
@@ -114,16 +114,16 @@ def process_report(telegram_item, fields, image_data):
     print('Fields:', fields, 'File type:', image_data['type'])
 
     if 'peserta' in fields:
-        result_msg = "Results:\n" 
+        result_msg = "Results:\n"
         for username in fields['peserta']:
             status = ' | Berhasil ' + EMOJI_SUCCESS
             try:
                 result = post_report_single(username, fields, image_data)
             except Exception as e:
                 print(e)
-                traceback.print_exc() 
+                traceback.print_exc()
                 status = ' | Gagal - {}'.format(e)
-            result_msg += "- {} {}\n".format(username, status) 
+            result_msg += "- {} {}\n".format(username, status)
 
         run_command('/sendMessage', {
             'chat_id': telegram_item['message']['chat']['id'],
@@ -211,12 +211,12 @@ Keterangan Opsi\-Opsi:
 \- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
 \- `<nama_kegiatan>` : isi dengan nama tugas yang dikerjakan di project tersebut\. bisa diisi dengan teks yang panjang\.
 \- `Peserta`: yang digunakan adalah username yang digiteam groupware\. Username groupware diambil dari username gmail yang digunakan di aplikasi digiteam groupware\, misal email `jdsitdev@gmail.com` maka username yang digunakan adalah `jdsitdev`\.
-  
-Keterangan tambahan :       
+
+Keterangan tambahan :
 \- Semua hasil input di bot telegram ini bisa di edit lagi melalui akun digiteam groupware masing2
-\- Kami sudah menyiapkan nilai default untuk Atribut lain\. Silahkan langsung dapat di sesuaikan value atribut lain ini di aplikasi groupware 
+\- Kami sudah menyiapkan nilai default untuk Atribut lain\. Silahkan langsung dapat di sesuaikan value atribut lain ini di aplikasi groupware
 \- Saat ini kita tengah mengembangkan agar semua atribut ini dapat diisi semua via telegram
-        
+
 Contoh Reply command:
 ```
 /lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
@@ -232,9 +232,13 @@ Peserta: rizkiadam01
 
 def process_telegram_input(item):
     """ process a single telegram update item """
+    if 'message' not in item :
+        print('update contain no message, ignoring...')
+        return None
+
     print('receiving input :', item['message'])
     print('time: {} message_id: {}'.format(
-        item['message']['date'], 
+        item['message']['date'],
         item['message']['message_id']
     ))
 
