@@ -87,7 +87,7 @@ def post_report_single(username, fields, image_data):
             fields[field_aliases[field]] = fields[field]
 
     defaults_values = {
-        'dateTask' : datetime.now().strftime('%Y-%m-%d'), 
+        'dateTask' : datetime.now().strftime('%Y-%m-%d') + poster.TIMESTAMP_TRAIL_FORMAT, 
         'difficultyTask': 3, 
         'organizerTask' : 'PLD',
         'isMainTask' : 'true', 

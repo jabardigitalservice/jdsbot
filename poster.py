@@ -4,18 +4,21 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
-root_url = os.getenv('API_ROOT_URL')
+ROOT_URL = os.getenv('API_ROOT_URL')
+TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
 IS_DEBUG=(os.getenv('IS_DEBUG', 'false').lower() == 'true')
 project_list = None
 
 def get_token(username, password):
     """ dapetin token dari username & password """
-    req = requests.post(url=root_url+'/auth/login/', data={
+    req = requests.post(url=ROOT_URL+'/auth/login/', data={
         'username': username,
         'password': password,
     })
 
     if req.status_code < 300:
+        if IS_DEBUG:
+            print('get token response:', req.text)
         res = req.json()
         return res['auth_token']
     else:
@@ -26,7 +29,7 @@ def get_project_list(auth_token):
     headers = {
         'Authorization': 'Bearer ' + auth_token,
     }
-    req = requests.get(url=root_url+'/project/?limit=100&pageSize=100', headers=headers)
+    req = requests.get(url=ROOT_URL+'/project/?limit=100&pageSize=100', headers=headers)
 
     if req.status_code < 300:
         raw_response = req.json()
@@ -45,8 +48,6 @@ def post_report(auth_token, data, files):
     else:
         data['projectId'] = project_list[data['projectName']]
 
-    data['dateTask'] = '{}T00:00:00.000Z'.format(data['dateTask'])
-
     headers = {
         'Authorization': 'Bearer ' + auth_token,
     }
@@ -54,11 +55,15 @@ def post_report(auth_token, data, files):
     if IS_DEBUG:
         print('sending input to groupware with data:', data)
 
-    target_url = root_url+'/logbook/'
+    target_url = ROOT_URL+'/logbook/'
     req = requests.post(url=target_url, headers=headers, files=files, data=data)
+    if IS_DEBUG:
+        print('request body:', req.request.body)
 
     if req.status_code < 300:
         raw_response = req.json()
+        if IS_DEBUG:
+            print('response', raw_response)
         return raw_response
     else:
         raise Exception('Error response: ' + req.text)
