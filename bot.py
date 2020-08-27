@@ -176,8 +176,8 @@ def action_lapor(item):
         image_data = process_images(item['message']['photo'])
         process_report(item, data, image_data)
     # if this message is replying to a photo
-    elif 'reply_to_message' in item['message']:
-        if 'photo' in item['message']['reply_to_message']:
+    elif 'reply_to_message' in item['message'] \
+    and 'photo' in item['message']['reply_to_message']:
             image_data = process_images(item['message']['reply_to_message']['photo'])
             process_report(item, data, image_data)
     else:
