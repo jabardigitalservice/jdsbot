@@ -17,15 +17,15 @@ BOT_NAME=os.getenv('BOT_NAME').upper()
 EMOJI_SUCCESS = "\U0001F44C"
 EMOJI_FAILED = "\U0001F61F"
 
-root_bot_url = 'https://api.telegram.org/bot{}'.format(TELEGRAM_TOKEN)
-root_bot_file_url = 'https://api.telegram.org/file/bot{}'.format(TELEGRAM_TOKEN)
+ROOT_BOT_URL = 'https://api.telegram.org/bot{}'.format(TELEGRAM_TOKEN)
+ROOT_BOT_FILE_URL = 'https://api.telegram.org/file/bot{}'.format(TELEGRAM_TOKEN)
 
 processed=[]
 start_time = time.time()
 
 def run_command(path, data=None):
-    global root_bot_url
-    req = requests.get(url=root_bot_url+path, data=data)
+    global ROOT_BOT_URL
+    req = requests.get(url=ROOT_BOT_URL+path, data=data)
     if req.status_code < 300:
         return req.json()
     else:
@@ -57,7 +57,7 @@ def get_file(file_id):
 
     file_data = run_command('/getFile', { 'file_id': file_id })
     file_path = file_data['result']['file_path']
-    download_url = root_bot_file_url + '/' + file_path
+    download_url = ROOT_BOT_FILE_URL + '/' + file_path
     res = requests.get(url=download_url)
     return {
         'type' : file_path.split('.')[-1],
@@ -135,10 +135,12 @@ def process_report(telegram_item, fields, image_data):
             'reply_to_message_id': telegram_item['message']['message_id']
         })
 
+    return True
+
 def process_error(telegram_item, msg):
     """ process (and may be notify) error encountered """
     print('error:', msg)
-    run_command('/sendMessage', {
+    return run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': 'Error: '+msg,
         'reply_to_message_id': telegram_item['message']['message_id']
@@ -177,20 +179,21 @@ def action_lapor(item):
 
     if 'photo' in item['message']:
         image_data = process_images(item['message']['photo'])
-        process_report(item, data, image_data)
+        return process_report(item, data, image_data)
     # if this message is replying to a photo
     elif 'reply_to_message' in item['message'] \
     and 'photo' in item['message']['reply_to_message']:
             image_data = process_images(item['message']['reply_to_message']['photo'])
-            process_report(item, data, image_data)
+            return process_report(item, data, image_data)
     else:
         process_error(item, 'No photo data in this input!')
+        return None
 
 def action_about(telegram_item):
     """ action for /about command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
     msg = """Halo\! Aku adalah JDSBot\. Aku ditugaskan untuk membantu melakukan rekap evidence gambar, nama proyek, dan nama task laporan harian otomatis ke aplikasi digiteam groupware\. Silahkan ketik di kolom chat `/help` untuk melihat command\-command yang bisa aku lakukan\! """
-    run_command('/sendMessage', {
+    return run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
         'parse_mode': 'MarkdownV2',
@@ -230,7 +233,7 @@ Peserta: rizkiadam01
 ```
 
     """
-    run_command('/sendMessage', {
+    return run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
         'parse_mode': 'MarkdownV2',
