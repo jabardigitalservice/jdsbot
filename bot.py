@@ -272,6 +272,7 @@ def process_telegram_input(item):
 
     available_commands = {
         '/lapor' : action_lapor,
+        '/start' : action_about,
         '/about' : action_about,
         '/help' : action_help,
     }
