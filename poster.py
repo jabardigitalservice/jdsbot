@@ -5,14 +5,18 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
-ROOT_URL = os.getenv('API_ROOT_URL')
+ROOT_API_URL = os.getenv('ROOT_API_URL')
+LOGBOOK_API_URL = ROOT_API_URL+'/logbook/'
+LOGIN_API_URL = ROOT_API_URL+'/auth/login/'
+PROJECT_LIST_API_URL = ROOT_API_URL+'/project/?limit=100&pageSize=100'
+
 TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
 IS_DEBUG=(os.getenv('IS_DEBUG', 'false').lower() == 'true')
 project_list = None
 
 def get_token(username, password):
     """ dapetin token dari username & password """
-    req = requests.post(url=ROOT_URL+'/auth/login/', data={
+    req = requests.post(url=LOGIN_API_URL, data={
         'username': username,
         'password': password,
     })
@@ -30,7 +34,7 @@ def get_project_list(auth_token):
     headers = {
         'Authorization': 'Bearer ' + auth_token,
     }
-    req = requests.get(url=ROOT_URL+'/project/?limit=100&pageSize=100', headers=headers)
+    req = requests.get(url=PROJECT_LIST_API_URL, headers=headers)
 
     if req.status_code < 300:
         raw_response = req.json()
@@ -63,8 +67,8 @@ def post_report(auth_token, data, files):
     if IS_DEBUG:
         print('sending input to groupware with data:', data)
 
-    target_url = ROOT_URL+'/logbook/'
-    req = requests.post(url=target_url, headers=headers, files=files, data=data)
+
+    req = requests.post(url=LOGBOOK_API_URL, headers=headers, files=files, data=data)
     if IS_DEBUG:
         print('request body:', req.request.body)
 

@@ -237,7 +237,12 @@ Peserta: rizkiadam01
     })
 
 def process_telegram_input(item):
-    """ process a single telegram update item """
+    """ process a single telegram update item 
+    Return
+    ------
+    mixed:
+        None is ignoring message
+    """
     if 'message' not in item :
         print('update contain no message, ignoring...')
         return None
@@ -276,10 +281,11 @@ def process_telegram_input(item):
         command = sub_command[0]
 
     if command in available_commands :
-        available_commands[command](item)
+        return available_commands[command](item)
     else:
         # process_error(item, "Unknown command '{}'".format(command))
         print("Unknown command '{}'. ignoring...".format(command))
+        return None
 
 def loop_updates(updates):
     """ loop through all update from telegram's getUpdates endpoint """

@@ -9,6 +9,8 @@ class TestPoster(unittest.TestCase):
     def setUp(self):
         os.putenv('IS_DEBUG', 'false')
         testuser = os.getenv('TEST_USER')
+
+        poster.LOGBOOK_API_URL = 'https://httpbin.org/anything'
         self.auth_token = poster.get_token(testuser, testuser)
 
         self.default_data = {
