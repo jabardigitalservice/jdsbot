@@ -12,6 +12,7 @@ load_dotenv()
 import poster
 
 TELEGRAM_TOKEN=os.getenv('TELEGRAM_TOKEN')
+BOT_NAME=os.getenv('BOT_NAME').upper()
 
 EMOJI_SUCCESS = "\U0001F44C"
 EMOJI_FAILED = "\U0001F61F"
@@ -152,7 +153,9 @@ def action_lapor(item):
         input_text = item['message']['text']
 
     lines = input_text.split("\n")
-    first_params = lines[0][7:].split('|') # split with '|' start from after '/lapor'
+    first_params = lines[0]
+    first_params = first_params[first_params.find(' ')+1 :] # start from after first ' '
+    first_params = first_params.split('|') # split with '|' 
     if len(first_params) != 2 :
         process_error(item, 'Mismatched format')
         return
@@ -264,7 +267,13 @@ def process_telegram_input(item):
         '/about' : action_about,
         '/help' : action_help,
     }
-    command = input_text.split(' ')[0]
+    command = input_text.split(' ', maxsplit=1)[0]
+    sub_command = command.split('@')
+    if len(sub_command) > 1:
+        if sub_command[1].upper() != BOT_NAME:
+            print('command not for this bot, ignoring...')
+            return None
+        command = sub_command[0]
 
     if command in available_commands :
         available_commands[command](item)
