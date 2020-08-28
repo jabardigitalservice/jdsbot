@@ -1,9 +1,11 @@
 import os
 import re
+from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
-load_dotenv()
+env_path = Path(__file__).parent.parent /  '.env'
+load_dotenv(dotenv_path=env_path)
 
 ROOT_API_URL = os.getenv('ROOT_API_URL')
 LOGBOOK_API_URL = ROOT_API_URL+'/logbook/'

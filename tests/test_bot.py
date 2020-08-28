@@ -4,7 +4,8 @@ import unittest
 import time
 from datetime import datetime
 
-import poster, bot
+import bot
+import models.groupware as groupware
 
 class TestBot(unittest.TestCase):
     def setUp(self):
@@ -14,7 +15,7 @@ class TestBot(unittest.TestCase):
         self.test_chat_id = os.getenv('TEST_CHAT_ID')
         self.test_photo_file_id = os.getenv('TEST_PHOTO_FILE_ID')
 
-        poster.LOGBOOK_API_URL = 'https://httpbin.org/anything'
+        groupware.LOGBOOK_API_URL = 'https://httpbin.org/anything'
 
         self.default_data = {
             'message': {

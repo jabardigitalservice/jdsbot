@@ -1,17 +1,18 @@
 import os
 import json
 import unittest
+from pathlib import Path
 from datetime import datetime
 
-import poster
+import models.groupware as groupware
 
 class TestPoster(unittest.TestCase):
     def setUp(self):
         os.putenv('IS_DEBUG', 'false')
         testuser = os.getenv('TEST_USER')
 
-        poster.LOGBOOK_API_URL = 'https://httpbin.org/anything'
-        self.auth_token = poster.get_token(testuser, testuser)
+        groupware.LOGBOOK_API_URL = 'https://httpbin.org/anything'
+        self.auth_token = groupware.get_token(testuser, testuser)
 
         self.default_data = {
             'dateTask' : datetime.now().strftime('%Y-%m-%dT00:00:00.000Z'),
@@ -25,12 +26,11 @@ class TestPoster(unittest.TestCase):
             'documentTask': 'null', # url
         }
 
-        parent_path = os.path.dirname(os.path.abspath(__file__))
-        self.default_file_path = os.path.join(parent_path, 'single-pixel.png')
+        self.default_file_path = Path(__file__).parent.parent / 'single-pixel.png'
 
     def test_normal_input(self):
         with open(self.default_file_path, 'rb') as f:
-            poster.post_report(
+            groupware.post_report(
                 self.auth_token,
                 self.default_data,
                 { 'evidenceTask': f}
@@ -48,7 +48,7 @@ class TestPoster(unittest.TestCase):
             data['dateTask'] = i
             with self.assertRaises(ValueError):
                 with open(self.default_file_path, 'rb') as f:
-                    poster.post_report(
+                    groupware.post_report(
                         self.auth_token,
                         data,
                         { 'evidenceTask': f}

@@ -9,7 +9,7 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
-import poster
+import models.groupware as groupware
 
 TELEGRAM_TOKEN=os.getenv('TELEGRAM_TOKEN')
 BOT_NAME=os.getenv('BOT_NAME').upper()
@@ -101,14 +101,14 @@ def post_report_single(username, input_fields, image_data):
         if field not in fields:
             fields[field] = defaults_values[field]
 
-    fields['dateTask'] += poster.TIMESTAMP_TRAIL_FORMAT
+    fields['dateTask'] += groupware.TIMESTAMP_TRAIL_FORMAT
 
     files = {
         'evidenceTask' : image_data['content'],
     }
 
-    auth_token = poster.get_token(username, username)
-    res = poster.post_report(auth_token, fields, files)
+    auth_token = groupware.get_token(username, username)
+    res = groupware.post_report(auth_token, fields, files)
     print('ok')
     return True
 
