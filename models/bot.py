@@ -125,7 +125,7 @@ def process_report(telegram_item, fields, image_data):
                 result = post_report_single(username, fields, image_data)
             except Exception as e:
                 print(e)
-                traceback.print_exc()
+                print(traceback.print_exc())
                 status = ' | Gagal - {}'.format(e)
             result_msg += "- {} {}\n".format(username, status)
 
