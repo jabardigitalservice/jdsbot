@@ -10,141 +10,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import models.groupware as groupware
-
-TELEGRAM_TOKEN=os.getenv('TELEGRAM_TOKEN')
-BOT_NAME=os.getenv('BOT_NAME').upper()
-
-EMOJI_SUCCESS = "\U0001F44C"
-EMOJI_FAILED = "\U0001F61F"
-
-ROOT_BOT_URL = 'https://api.telegram.org/bot{}'.format(TELEGRAM_TOKEN)
-ROOT_BOT_FILE_URL = 'https://api.telegram.org/file/bot{}'.format(TELEGRAM_TOKEN)
+import models.bot as bot
 
 processed=[]
-start_time = time.time()
-
-def run_command(path, data=None):
-    global ROOT_BOT_URL
-    req = requests.get(url=ROOT_BOT_URL+path, data=data)
-    if req.status_code < 300:
-        return req.json()
-    else:
-        raise Exception('Error: ' + req.text)
-
-def get_file(file_id):
-    """ return file type & binary content of a file in telegram
-
-    Returns
-    -------
-    dict:
-        type: string of file extension (jpg,doc,txt, etc)
-        content: binary data of the file content
-
-    Example
-    -------
-
-    ```
-    res = get_file('1234abcd')
-    with open('test.png', 'wb') as f:
-        f.write(res['content'])
-    ```
-
-    Reference
-    ---------
-    - https://stackabuse.com/download-files-with-python/
-
-    """
-
-    file_data = run_command('/getFile', { 'file_id': file_id })
-    file_path = file_data['result']['file_path']
-    download_url = ROOT_BOT_FILE_URL + '/' + file_path
-    res = requests.get(url=download_url)
-    return {
-        'type' : file_path.split('.')[-1],
-        'content': res.content,
-    }
-
-def process_images(photo_list):
-    """ process photo list objects from telegram API """
-    largest_photo = max(photo_list, key=lambda k: k['file_size'])
-    # print('largest_photo', largest_photo)
-
-    return get_file(largest_photo['file_id'])
-
-def post_report_single(username, input_fields, image_data):
-    """ send a single report """
-    print('sending report for ' + username)
-    fields = json.loads(json.dumps(input_fields)) # clone fields to avoid changing source values
-    field_aliases = {
-        'tanggal': 'dateTask',
-        'kesulitan' : 'difficultyTask',
-        'penyelenggara': 'organizerTask',
-        'tugasutama': 'isMainTask',
-        'lokasi': 'workPlace',
-        'lampiran': 'documentTask',
-    }
-
-    for field in field_aliases:
-        if field in fields:
-            fields[field_aliases[field]] = fields[field]
-
-    defaults_values = {
-        'dateTask' : datetime.now().strftime('%Y-%m-%d'),
-        'difficultyTask': 3,
-        'organizerTask' : 'PLD',
-        'isMainTask' : 'true',
-        'isDocumentLink' : 'true',
-        'workPlace' : 'WFH',
-        'documentTask': 'null',
-    }
-    for field in defaults_values:
-        if field not in fields:
-            fields[field] = defaults_values[field]
-
-    fields['dateTask'] += groupware.TIMESTAMP_TRAIL_FORMAT
-
-    files = {
-        'evidenceTask' : image_data['content'],
-    }
-
-    auth_token = groupware.get_token(username, username)
-    res = groupware.post_report(auth_token, fields, files)
-    print('ok')
-    return True
-
-def process_report(telegram_item, fields, image_data):
-    """ process parsing result from our telegram processor"""
-    print('>>> PROCESSING REPORT >>>')
-    print('Fields:', fields, 'File type:', image_data['type'])
-
-    if 'peserta' in fields:
-        result_msg = "Results:\n"
-        for username in fields['peserta']:
-            status = ' | Berhasil ' + EMOJI_SUCCESS
-            try:
-                result = post_report_single(username, fields, image_data)
-            except Exception as e:
-                print(e)
-                traceback.print_exc()
-                status = ' | Gagal - {}'.format(e)
-            result_msg += "- {} {}\n".format(username, status)
-
-        run_command('/sendMessage', {
-            'chat_id': telegram_item['message']['chat']['id'],
-            'text': result_msg,
-            'reply_to_message_id': telegram_item['message']['message_id']
-        })
-
-    return True
-
-def process_error(telegram_item, msg):
-    """ process (and may be notify) error encountered """
-    print('error:', msg)
-    return run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': 'Error: '+msg,
-        'reply_to_message_id': telegram_item['message']['message_id']
-    })
+START_TIME = time.time()
 
 def action_lapor(item):
     """ action for /lapor command """
@@ -159,7 +28,7 @@ def action_lapor(item):
     first_params = first_params[first_params.find(' ')+1 :] # start from after first ' '
     first_params = first_params.split('|') # split with '|' 
     if len(first_params) != 2 :
-        process_error(item, 'Mismatched format')
+        bot.process_error(item, 'Mismatched format')
         return
 
     data = {
@@ -178,22 +47,22 @@ def action_lapor(item):
                 data[field_name] = content
 
     if 'photo' in item['message']:
-        image_data = process_images(item['message']['photo'])
-        return process_report(item, data, image_data)
+        image_data = bot.process_images(item['message']['photo'])
+        return bot.process_report(item, data, image_data)
     # if this message is replying to a photo
     elif 'reply_to_message' in item['message'] \
     and 'photo' in item['message']['reply_to_message']:
-            image_data = process_images(item['message']['reply_to_message']['photo'])
-            return process_report(item, data, image_data)
+            image_data = bot.process_images(item['message']['reply_to_message']['photo'])
+            return bot.process_report(item, data, image_data)
     else:
-        process_error(item, 'No photo data in this input!')
+        bot.process_error(item, 'No photo data in this input!')
         return None
 
 def action_about(telegram_item):
     """ action for /about command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
     msg = """Halo\! Aku adalah JDSBot\. Aku ditugaskan untuk membantu melakukan rekap evidence gambar, nama proyek, dan nama task laporan harian otomatis ke aplikasi digiteam groupware\. Silahkan ketik di kolom chat `/help` untuk melihat command\-command yang bisa aku lakukan\! """
-    return run_command('/sendMessage', {
+    return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
         'parse_mode': 'MarkdownV2',
@@ -233,7 +102,7 @@ Peserta: rizkiadam01
 ```
 
     """
-    return run_command('/sendMessage', {
+    return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
         'parse_mode': 'MarkdownV2',
@@ -256,7 +125,7 @@ def process_telegram_input(item):
         item['message']['message_id']
     ))
 
-    if item['message']['date'] < start_time :
+    if item['message']['date'] < START_TIME :
         print('old message, ignoring...')
         return None
 
@@ -279,7 +148,7 @@ def process_telegram_input(item):
     command = input_text.split(' ', maxsplit=1)[0]
     sub_command = command.split('@')
     if len(sub_command) > 1:
-        if sub_command[1].upper() != BOT_NAME:
+        if sub_command[1].upper() != bot.BOT_NAME:
             print('command not for this bot, ignoring...')
             return None
         command = sub_command[0]
@@ -287,7 +156,7 @@ def process_telegram_input(item):
     if command in available_commands :
         return available_commands[command](item)
     else:
-        # process_error(item, "Unknown command '{}'".format(command))
+        # bot.process_error(item, "Unknown command '{}'".format(command))
         print("Unknown command '{}'. ignoring...".format(command))
         return None
 
@@ -298,7 +167,7 @@ def loop_updates(updates):
     for item in updates:
         if 'message' in item and 'text' in item['message'] \
         and item['message']['message_id'] not in processed \
-        and item['message']['date'] < start_time \
+        and item['message']['date'] < START_TIME \
         :
             processed.append(item['message']['message_id'])
             process_telegram_input(item)
@@ -308,6 +177,6 @@ if __name__ == '__main__':
     sleep_interval = 3 if len(sys.argv) < 2 else sys.argv[1]
 
     while True:
-        res = run_command('/getUpdates')
+        res = bot.run_command('/getUpdates')
         loop_updates(res['result'])
         time.sleep(3)

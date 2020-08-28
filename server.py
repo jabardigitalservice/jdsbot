@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, jsonify
 app = Flask(__name__)
 
-import bot
+import bot_controller
 
 @app.route("/")
 def hello():
@@ -12,7 +12,7 @@ def hello():
 @app.route('/', methods=['POST'])
 def process_telegram():
     input_data = json.loads(request.data)
-    bot.process_telegram_input(input_data)
+    bot_controller.process_telegram_input(input_data)
     return 'ok'
 
 if __name__ == "__main__":

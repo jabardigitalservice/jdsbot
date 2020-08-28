@@ -4,8 +4,9 @@ import unittest
 import time
 from datetime import datetime
 
-import bot
+import bot_controller as bot
 import models.groupware as groupware
+import models.bot as bot_model
 
 class TestBot(unittest.TestCase):
     def setUp(self):
@@ -51,7 +52,7 @@ class TestBot(unittest.TestCase):
 
     def test_about_mention_this_bot(self):
         item = json.loads(json.dumps(self.default_data))
-        item['message']['text'] = '/about@'+bot.BOT_NAME
+        item['message']['text'] = '/about@'+bot_model.BOT_NAME
         self.assertIsNotNone(bot.process_telegram_input(item))
 
     def test_about_mention_other_bot(self):
