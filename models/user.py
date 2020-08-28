@@ -1,4 +1,6 @@
-""" Model for table user """
+""" Model for table user 
+Currently only support MySQL
+"""
 import os
 from pathlib import Path
 
@@ -9,12 +11,10 @@ load_dotenv(dotenv_path=env_path)
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 
-engine = sqlalchemy.create_engine(DATABASE_URL)
-db = engine.connect()
-
 USER_TABLE_DEFINITION = """
+# ONLY FOR MYSQL
 CREATE TABLE IF NOT EXISTS user (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
     username CHAR(100),
     password CHAR(100),
     alias CHAR(100)
@@ -22,12 +22,26 @@ CREATE TABLE IF NOT EXISTS user (
 """
 
 # global variables to store user data
+engine=None
+db=None
 PASSWORD = {}
 ALIAS = {}
 
+def get_engine():
+    global engine
+    if engine is None:
+        engine = sqlalchemy.create_engine(DATABASE_URL)
+    return engine
+
+def get_db():
+    global db
+    if db is None:
+        db = get_engine().connect()
+    return db
+
 def db_exec(*args):
     # with engine.connect() as db:
-    return db.execute(*args)
+    return get_db().execute(*args)
 
 def get_user_list():
     global USER_LIST
@@ -50,7 +64,7 @@ def add_alias(username, new_alias):
     elif username not in USER_LIST:
         return (False, 'Unknown username')
     else:
-        res = db_exec('UPDATE user SET alias = ? WHERE username = ?', new_alias, username)
+        res = db_exec('UPDATE user SET alias = % WHERE username = ?', new_alias, username)
 
         load_user_data()
         return (True, 'success')
