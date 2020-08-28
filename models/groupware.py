@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
+import models.user as user
+user.load_user_data()
+
 ROOT_API_URL = os.getenv('ROOT_API_URL')
 LOGBOOK_API_URL = ROOT_API_URL+'/logbook/'
 LOGIN_API_URL = ROOT_API_URL+'/auth/login/'
@@ -16,8 +19,16 @@ TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
 IS_DEBUG=(os.getenv('IS_DEBUG', 'false').lower() == 'true')
 project_list = None
 
-def get_token(username, password):
+def get_token(username):
     """ dapetin token dari username & password """
+    if username in user.ALIAS:
+        username = user.ALIAS[username]
+
+    if username in user.PASSWORD:
+        password = user.PASSWORD[username]
+    else:
+        password = username
+
     req = requests.post(url=LOGIN_API_URL, data={
         'username': username,
         'password': password,
@@ -68,7 +79,6 @@ def post_report(auth_token, data, files):
 
     if IS_DEBUG:
         print('sending input to groupware with data:', data)
-
 
     req = requests.post(url=LOGBOOK_API_URL, headers=headers, files=files, data=data)
     if IS_DEBUG:

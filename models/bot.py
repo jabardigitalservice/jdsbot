@@ -107,7 +107,7 @@ def post_report_single(username, input_fields, image_data):
         'evidenceTask' : image_data['content'],
     }
 
-    auth_token = groupware.get_token(username, username)
+    auth_token = groupware.get_token(username)
     res = groupware.post_report(auth_token, fields, files)
     print('ok')
     return True

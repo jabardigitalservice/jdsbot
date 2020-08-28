@@ -45,15 +45,14 @@ def db_exec(*args):
 
 def get_user_list():
     global USER_LIST
+    res = db_exec('SELECT username, password, alias FROM user')
+
+    return [ row for row in res ]
+
+def load_user_data():
     global PASSWORD
     global ALIAS
 
-    res = db_exec('SELECT * FROM user')
-
-    USER_LIST = [ row for row in res ]
-    return USER_LIST
-
-def load_user_data():
     USER_LIST = get_user_list()
     PASSWORD = { row[0]:row[1] for row in USER_LIST }
     ALIAS = { row[2]:row[0] for row in USER_LIST }
