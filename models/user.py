@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
+import models.groupware as groupware
+
 DATABASE_URL = os.getenv('DATABASE_URL')
 
 USER_TABLE_DEFINITION = """
@@ -44,7 +46,6 @@ def db_exec(*args):
     return get_db().execute(*args)
 
 def get_user_list():
-    global USER_LIST
     res = db_exec('SELECT username, password, alias FROM user')
 
     return [ row for row in res ]
@@ -52,7 +53,6 @@ def get_user_list():
 def load_user_data():
     global PASSWORD
     global ALIAS
-
     USER_LIST = get_user_list()
     PASSWORD = { row[0]:row[1] for row in USER_LIST }
     ALIAS = { row[2]:row[0] for row in USER_LIST }
@@ -63,8 +63,21 @@ def add_alias(username, new_alias):
     elif username not in USER_LIST:
         return (False, 'Unknown username')
     else:
-        res = db_exec('UPDATE user SET alias = % WHERE username = ?', new_alias, username)
+        res = db_exec('UPDATE user SET alias = %s WHERE username = %s', new_alias, username)
 
         load_user_data()
         return (True, 'success')
 
+def get_user_token(username):
+    global ALIAS
+    global PASSWORD
+
+    if username in ALIAS:
+        username = ALIAS[username]
+
+    if username in PASSWORD:
+        password = PASSWORD[username]
+    else:
+        password = username
+
+    return groupware.get_token(username, password)

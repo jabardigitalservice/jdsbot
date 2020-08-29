@@ -8,11 +8,13 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
-import models.user as user
 import sqlalchemy
+
+import models.user as user
 
 class TestUser(unittest.TestCase):
     def setUp(self):
+        self.testuser = os.getenv('TEST_USER')
         TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
         user.DATABASE_URL = TEST_DATABASE_URL
 
@@ -31,6 +33,22 @@ class TestUser(unittest.TestCase):
         ]
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][1], 'test_user')
+
+    def test_auth_custom_alias(self):
+        test_alias = 'dummy_alias'
+        user.db_exec('INSERT INTO user (username, password, alias) VALUES (%s, %s, %s)', self.testuser, self.testuser, test_alias)
+        user.load_user_data()
+        self.assertIsNotNone(user.get_user_token(test_alias))
+        user.db_exec('DELETE FROM user WHERE ((username = %s))', self.testuser)
+
+    def test_auth_custom_password(self):
+        test_password = 'dummy_password'
+        user.db_exec('INSERT INTO user (username, password) VALUES (%s, %s)', self.testuser, test_password)
+        user.load_user_data()
+        with self.assertRaises(Exception):
+            user.get_user_token(self.testuser)
+        user.db_exec('DELETE FROM user WHERE ((username = %s))', self.testuser)
+        user.load_user_data()
 
     def setDown(self):
         user.db_exec('DROP TABLE user')
