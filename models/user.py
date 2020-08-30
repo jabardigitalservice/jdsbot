@@ -9,18 +9,19 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
+import models.groupware as groupware
+
 DATABASE_URL = os.getenv('DATABASE_URL')
 
-USER_TABLE_DEFINITION = """
 # ONLY FOR MYSQL
-CREATE TABLE IF NOT EXISTS user (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    username CHAR(100),
-    password CHAR(100),
-    alias CHAR(100)
+db_meta = sqlalchemy.MetaData()
+USER_TABLE_DEFINITION = sqlalchemy.Table(
+   'users', db_meta, 
+   sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
+   sqlalchemy.Column('username', sqlalchemy.String(100)), 
+   sqlalchemy.Column('password', sqlalchemy.String(100)), 
+   sqlalchemy.Column('alias', sqlalchemy.String(100)), 
 )
-"""
-
 # global variables to store user data
 engine=None
 db=None
@@ -44,8 +45,7 @@ def db_exec(*args):
     return get_db().execute(*args)
 
 def get_user_list():
-    global USER_LIST
-    res = db_exec('SELECT username, password, alias FROM user')
+    res = db_exec('SELECT username, password, alias FROM users')
 
     return [ row for row in res ]
 
@@ -63,8 +63,21 @@ def add_alias(username, new_alias):
     elif username not in USER_LIST:
         return (False, 'Unknown username')
     else:
-        res = db_exec('UPDATE user SET alias = % WHERE username = ?', new_alias, username)
+        res = db_exec('UPDATE users SET alias = %s WHERE username = %s', new_alias, username)
 
         load_user_data()
         return (True, 'success')
 
+def get_user_token(username):
+    global ALIAS
+    global PASSWORD
+
+    if username in ALIAS:
+        username = ALIAS[username]
+
+    if username in PASSWORD:
+        password = PASSWORD[username]
+    else:
+        password = username
+
+    return groupware.get_token(username, password)

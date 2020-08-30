@@ -12,6 +12,8 @@ env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
 import models.groupware as groupware
+import models.user as user
+user.load_user_data()
 
 TELEGRAM_TOKEN=os.getenv('TELEGRAM_TOKEN')
 BOT_NAME=os.getenv('BOT_NAME').upper()
@@ -107,7 +109,7 @@ def post_report_single(username, input_fields, image_data):
         'evidenceTask' : image_data['content'],
     }
 
-    auth_token = groupware.get_token(username)
+    auth_token = user.get_user_token(username)
     res = groupware.post_report(auth_token, fields, files)
     print('ok')
     return True
