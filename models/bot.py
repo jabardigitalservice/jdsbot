@@ -16,7 +16,9 @@ import models.user as user
 user.load_user_data()
 
 TELEGRAM_TOKEN=os.getenv('TELEGRAM_TOKEN')
-BOT_NAME=os.getenv('BOT_NAME').upper()
+
+BOT_USERNAME=os.getenv('BOT_USERNAME').upper()
+BOT_NICKNAME=os.getenv('BOT_NICKNAME', BOT_USERNAME).upper()
 
 EMOJI_SUCCESS = "\U0001F44C"
 EMOJI_FAILED = "\U0001F61F"

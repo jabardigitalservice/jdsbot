@@ -52,7 +52,7 @@ class TestBot(unittest.TestCase):
 
     def test_about_mention_this_bot(self):
         item = json.loads(json.dumps(self.default_data))
-        item['message']['text'] = '/about@'+bot_model.BOT_NAME
+        item['message']['text'] = '/about@'+bot_model.BOT_USERNAME
         self.assertIsNotNone(bot.process_telegram_input(item))
 
     def test_about_mention_other_bot(self):
