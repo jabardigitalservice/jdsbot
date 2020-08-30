@@ -24,9 +24,9 @@ class TestUser(unittest.TestCase):
         random_id = random.randrange(1,1000)
         query_insert = sqlalchemy.text("""
             INSERT INTO 
-            user(id, username, password) 
+            users(id, username, password) 
             VALUES(:id, :username, :password)""")
-        query_select = sqlalchemy.text('SELECT * FROM user WHERE id = :id')
+        query_select = sqlalchemy.text('SELECT * FROM users WHERE id = :id')
         user.get_db().execute(query_insert,
             id=random_id, 
             username='test_user', 
@@ -40,29 +40,29 @@ class TestUser(unittest.TestCase):
 
     def test_auth_custom_alias(self):
         test_alias = 'dummy_alias'
-        query_insert = sqlalchemy.text('INSERT INTO user (username, password, alias) VALUES (:username, :password, :alias)')
+        query_insert = sqlalchemy.text('INSERT INTO users (username, password, alias) VALUES (:username, :password, :alias)')
         user.get_db().execute(query_insert, 
             username=self.testuser, 
             password=self.testuser, 
             alias=test_alias)
         user.load_user_data()
         self.assertIsNotNone(user.get_user_token(test_alias))
-        query_delete = sqlalchemy.text('DELETE FROM user WHERE ((username = :username))')
+        query_delete = sqlalchemy.text('DELETE FROM users WHERE ((username = :username))')
         user.get_db().execute(query_delete, username=self.testuser)
 
     def test_auth_custom_password(self):
         test_password = 'dummy_password'
-        query_insert = sqlalchemy.text('INSERT INTO user (username, password) VALUES (:username, :password)')
+        query_insert = sqlalchemy.text('INSERT INTO users (username, password) VALUES (:username, :password)')
         user.get_db().execute(query_insert, username=self.testuser, password=test_password)
         user.load_user_data()
         with self.assertRaises(Exception):
             user.get_user_token(self.testuser)
-        query_delete = sqlalchemy.text('DELETE FROM user WHERE ((username = :username))')
+        query_delete = sqlalchemy.text('DELETE FROM users WHERE ((username = :username))')
         user.get_db().execute(query_delete, username=self.testuser)
         user.load_user_data()
 
     def setDown(self):
-        user.db_exec('DROP TABLE user')
+        user.db_exec('DROP TABLE users')
 
 if __name__ == '__main__':
     unittest.main()
