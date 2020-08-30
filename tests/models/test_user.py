@@ -18,36 +18,47 @@ class TestUser(unittest.TestCase):
         TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
         user.DATABASE_URL = TEST_DATABASE_URL
 
-        user.db_exec(user.USER_TABLE_DEFINITION)
+        user.db_meta.create_all(user.get_engine())
 
     def test_insert_select(self):
         random_id = random.randrange(1,1000)
-        user.db_exec("""
+        query_insert = sqlalchemy.text("""
             INSERT INTO 
             user(id, username, password) 
-            VALUES(%s, %s, %s)""",
-            random_id, 'test_user', 'test_password')
+            VALUES(:id, :username, :password)""")
+        query_select = sqlalchemy.text('SELECT * FROM user WHERE id = :id')
+        user.get_db().execute(query_insert,
+            id=random_id, 
+            username='test_user', 
+            password='test_password')
         res = [ 
             row for row 
-            in user.db_exec('SELECT * FROM user WHERE id = %s', random_id) 
+            in user.get_db().execute(query_select, id=random_id) 
         ]
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][1], 'test_user')
 
     def test_auth_custom_alias(self):
         test_alias = 'dummy_alias'
-        user.db_exec('INSERT INTO user (username, password, alias) VALUES (%s, %s, %s)', self.testuser, self.testuser, test_alias)
+        query_insert = sqlalchemy.text('INSERT INTO user (username, password, alias) VALUES (:username, :password, :alias)')
+        user.get_db().execute(query_insert, 
+            username=self.testuser, 
+            password=self.testuser, 
+            alias=test_alias)
         user.load_user_data()
         self.assertIsNotNone(user.get_user_token(test_alias))
-        user.db_exec('DELETE FROM user WHERE ((username = %s))', self.testuser)
+        query_delete = sqlalchemy.text('DELETE FROM user WHERE ((username = :username))')
+        user.get_db().execute(query_delete, username=self.testuser)
 
     def test_auth_custom_password(self):
         test_password = 'dummy_password'
-        user.db_exec('INSERT INTO user (username, password) VALUES (%s, %s)', self.testuser, test_password)
+        query_insert = sqlalchemy.text('INSERT INTO user (username, password) VALUES (:username, :password)')
+        user.get_db().execute(query_insert, username=self.testuser, password=test_password)
         user.load_user_data()
         with self.assertRaises(Exception):
             user.get_user_token(self.testuser)
-        user.db_exec('DELETE FROM user WHERE ((username = %s))', self.testuser)
+        query_delete = sqlalchemy.text('DELETE FROM user WHERE ((username = :username))')
+        user.get_db().execute(query_delete, username=self.testuser)
         user.load_user_data()
 
     def setDown(self):

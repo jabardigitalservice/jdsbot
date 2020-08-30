@@ -13,16 +13,15 @@ import models.groupware as groupware
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 
-USER_TABLE_DEFINITION = """
 # ONLY FOR MYSQL
-CREATE TABLE IF NOT EXISTS user (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    username CHAR(100),
-    password CHAR(100),
-    alias CHAR(100)
+db_meta = sqlalchemy.MetaData()
+USER_TABLE_DEFINITION = sqlalchemy.Table(
+   'students', db_meta, 
+   sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
+   sqlalchemy.Column('username', sqlalchemy.String(100)), 
+   sqlalchemy.Column('password', sqlalchemy.String(100)), 
+   sqlalchemy.Column('alias', sqlalchemy.String(100)), 
 )
-"""
-
 # global variables to store user data
 engine=None
 db=None
