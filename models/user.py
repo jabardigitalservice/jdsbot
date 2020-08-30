@@ -60,10 +60,15 @@ def load_user_data():
 def add_alias(username, new_alias):
     if new_alias in ALIAS:
         return (False, 'Alias already exists')
-    elif username not in USER_LIST:
+    elif username not in PASSWORD:
         return (False, 'Unknown username')
     else:
-        res = db_exec('UPDATE users SET alias = %s WHERE username = %s', new_alias, username)
+        res = get_db().execute("""
+            UPDATE users 
+            SET alias = :alias 
+            WHERE username = :username""", 
+            alias=new_alias, 
+            username=username)
 
         load_user_data()
         return (True, 'success')
