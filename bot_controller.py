@@ -62,7 +62,7 @@ def action_lapor(item):
 def action_about(telegram_item):
     """ action for /about command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
-    msg = """Halo\! Aku adalah JDSBot\. Aku ditugaskan untuk membantu melakukan rekap evidence gambar, nama proyek, dan nama task laporan harian otomatis ke aplikasi digiteam groupware\. Silahkan ketik di kolom chat `/help` untuk melihat command\-command yang bisa aku lakukan\! """
+    msg = """Halo\! Aku adalah {}\. Aku ditugaskan untuk membantu melakukan rekap evidence gambar, nama proyek, dan nama task laporan harian otomatis ke aplikasi digiteam groupware\. Silahkan ketik di kolom chat `/help` untuk melihat command\-command yang bisa aku lakukan\! """.format(bot.BOT_NICKNAME)
     return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
@@ -182,7 +182,7 @@ def process_telegram_input(item):
     command = input_text.split(' ', maxsplit=1)[0]
     sub_command = command.split('@')
     if len(sub_command) > 1:
-        if sub_command[1].upper() != bot.BOT_NAME:
+        if sub_command[1].upper() != bot.BOT_USERNAME:
             print('command not for this bot, ignoring...')
             return None
         command = sub_command[0]
