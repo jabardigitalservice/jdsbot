@@ -97,10 +97,11 @@ class TestBot(unittest.TestCase):
         del item['message']['reply_to_message']['photo']
         self.assertIsNone(bot.process_telegram_input(item))
 
-    @unittest.skip(""" sekarang ini mekanisme exception projectName not found tidak mendukung 
-    unittest karena perlu di capture tanpa di raise ulang agar bisa didapatkan 
-    error message. perlu mekanisme validasi sebelum send satu2 per username agar 
-    tidak berulang dan bisa dipisah dari validasi auth per user """)
+    @unittest.skip(""" sekarang ini mekanisme exception projectName not found 
+    tidak mendukung unittest karena perlu di capture tanpa di raise ulang agar 
+    bisa didapatkan error message. perlu mekanisme validasi sebelum send satu2 
+    per username agar tidak berulang dan bisa dipisah dari validasi auth per 
+    user """)
     def test_lapor_random_project_name(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor asl|unittest\npeserta:' + self.test_user

@@ -52,14 +52,14 @@ class TestUser(unittest.TestCase):
             user.get_user_token(test_alias)
 
         # test adding alias
-        user.add_alias(self.testuser, test_alias)
+        user.set_alias(self.testuser, test_alias)
         self.assertIsNotNone(user.get_user_token(test_alias))
 
         query_delete = sqlalchemy.text('DELETE FROM users WHERE ((username = :username))')
         user.get_db().execute(query_delete, username=self.testuser)
 
     def test_auth_alias_unknown_user(self):
-        res = user.add_alias('random_user', 'random_alias')
+        res = user.set_alias('random_user', 'random_alias')
         self.assertFalse(res[0])
 
     def test_auth_duplicate_alias(self):
@@ -75,7 +75,7 @@ class TestUser(unittest.TestCase):
         self.assertIsNotNone(user.get_user_token(test_alias))
 
         # test adding alias
-        res = user.add_alias(self.testuser, test_alias)
+        res = user.set_alias(self.testuser, test_alias)
         self.assertFalse(res[0])
 
         query_delete = sqlalchemy.text('DELETE FROM users WHERE ((username = :username))')

@@ -57,7 +57,7 @@ def load_user_data():
     PASSWORD = { row[0]:row[1] for row in USER_LIST }
     ALIAS = { row[2]:row[0] for row in USER_LIST }
 
-def add_alias(username, new_alias):
+def set_alias(username, new_alias):
     if new_alias in ALIAS:
         return (False, 'Alias already exists')
     elif username not in PASSWORD:
