@@ -58,20 +58,32 @@ def load_user_data():
     ALIAS = { row[2]:row[0] for row in USER_LIST }
 
 def set_alias(username, new_alias):
+    print('set alias for : username', username, 'new_alias', new_alias)
     if new_alias in ALIAS:
         return (False, 'Alias already exists')
-    elif username not in PASSWORD:
-        return (False, 'Unknown username')
-    else:
-        res = get_db().execute("""
-            UPDATE users 
-            SET alias = :alias 
-            WHERE username = :username""", 
-            alias=new_alias, 
-            username=username)
 
-        load_user_data()
-        return (True, 'success')
+    query_find_user = sqlalchemy.text("""
+        SELECT * 
+        FROM users 
+        WHERE username = :username""")
+    res_find_user = get_db().execute(
+        query_find_user, 
+        username=username).fetchall()
+    print('res_find_user', res_find_user)
+    if len(res_find_user) != 1:
+        return (False, 'User not found')
+
+    query_update = sqlalchemy.text("""
+        UPDATE users 
+        SET alias = :alias 
+        WHERE username = :username""")
+    res = get_db().execute(
+        query_update,
+        alias=new_alias, 
+        username=username)
+
+    load_user_data()
+    return (True, 'success')
 
 def get_user_token(username):
     global ALIAS

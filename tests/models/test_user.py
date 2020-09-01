@@ -92,7 +92,7 @@ class TestUser(unittest.TestCase):
         user.get_db().execute(query_delete, username=self.testuser)
         user.load_user_data()
 
-    def setDown(self):
+    def tearDown(self):
         user.db_exec('DROP TABLE users')
 
 if __name__ == '__main__':

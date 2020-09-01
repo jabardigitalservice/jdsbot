@@ -4,8 +4,17 @@ import unittest
 import time
 from datetime import datetime
 
+import sqlalchemy
+
 import bot_controller as bot
 import models.groupware as groupware
+import models.user as user
+
+# setup test database
+TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
+user.DATABASE_URL = TEST_DATABASE_URL
+user.db_meta.create_all(user.get_engine())
+
 import models.bot as bot_model
 
 class TestBot(unittest.TestCase):
@@ -35,6 +44,9 @@ class TestBot(unittest.TestCase):
                 },
             }
         }
+
+    def tearDown(self):
+        user.db_exec('DROP TABLE users')
 
     def test_empty_message(self):
         item = {}
@@ -81,7 +93,7 @@ class TestBot(unittest.TestCase):
     def test_lapor_normal_with_caption(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['photo'] = item['message']['reply_to_message']['photo']
-        item['message']['reply_to_message'] = None
+        del item['message']['reply_to_message']
         item['message']['caption'] = '/lapor Riset|unittest\npeserta:' + self.test_user
         self.assertIsNotNone(bot.process_telegram_input(item))
 
@@ -97,6 +109,32 @@ class TestBot(unittest.TestCase):
         del item['message']['reply_to_message']['photo']
         self.assertIsNone(bot.process_telegram_input(item))
 
+    def test_set_alias_normal(self):
+        # insert username to user table
+        query_insert = sqlalchemy.text("""
+            INSERT INTO 
+            users(username, password) 
+            VALUES(:username, :password)""")
+        user.get_db().execute(query_insert,
+            username=self.test_user, 
+            password=self.test_user)
+
+        # set alias
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/setalias {}|@random_alias'.format(self.test_user)
+        self.assertIsNotNone(bot.process_telegram_input(item))
+
+        # test /lapor with alias
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/lapor Riset|unittest\npeserta: @random_alias'
+        self.assertIsNotNone(bot.process_telegram_input(item))
+
+    def test_set_alias_random_user(self):
+        # set alias
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/setalias random.user|@random_alias'
+        self.assertIsNone(bot.process_telegram_input(item))
+
     @unittest.skip(""" sekarang ini mekanisme exception projectName not found 
     tidak mendukung unittest karena perlu di capture tanpa di raise ulang agar 
     bisa didapatkan error message. perlu mekanisme validasi sebelum send satu2 
@@ -107,6 +145,12 @@ class TestBot(unittest.TestCase):
         item['message']['text'] = '/lapor asl|unittest\npeserta:' + self.test_user
         with self.assertRaises(Exception):
             bot.process_telegram_input(item)
+
+    @unittest.skip('same reason as above')
+    def test_lapor_random_user(self):
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/lapor Riset|unittest\npeserta: random_user'
+        self.assertIsNone(bot.process_telegram_input(item))
 
 if __name__ == '__main__':
     unittest.main()

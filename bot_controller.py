@@ -131,14 +131,18 @@ def action_setalias(telegram_item):
 
     input_text = input_text.split(' ', maxsplit=1)[1] # start from after first ' '
     val = input_text.split('|')
-    res, msg = user.set_alias(val[0], val[1])
+    res, msg = user.set_alias(val[0].strip(), val[1].strip() )
 
-    return bot.run_command('/sendMessage', {
+    print('hasil setalias:', res, msg)
+
+    bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
         'reply_to_message_id': telegram_item['message']['message_id'],
         'parse_mode': 'MarkdownV2',
     })
+
+    return None if not res else res
 
 def process_telegram_input(item):
     """ process a single telegram update item 
