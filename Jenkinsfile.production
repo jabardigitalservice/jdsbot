@@ -2,8 +2,8 @@ pipeline {
 
     agent any
     environment {
-        USER_VM = "${env.USER_VM}"
-        HOST_VM106 = "${env.VM106}"
+        USER_VM = "${env.USER_PIKOBAR}"
+        HOST_VM106 = "${env.HOST_VM106}"
         
     }
 
