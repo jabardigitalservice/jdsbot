@@ -50,6 +50,9 @@ def post_report(auth_token, data, files):
     if project_list is None:
         project_list = get_project_list(auth_token)
 
+        if IS_DEBUG:
+            print('project_list:', project_list)
+
     if data['projectName'] not in project_list:
         raise Exception("projectName '{}' not found".format(data['projectName']))
     else:
