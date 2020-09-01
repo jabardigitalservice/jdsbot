@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: .
+    networks:
+      - internal
+    env_file:
+      - .env
+    ports:
+      - 8081:80
+
+networks:
+  internal:
+    driver: bridge
