@@ -1,0 +1,46 @@
+pipeline {
+
+    agent any
+    environment {
+        USER_VM = "${env.USER_PIKOBAR}"
+        HOST_VM106 = "${env.HOST_VM106}"
+        
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS')
+    }
+
+    stages {
+
+        stage('Run Docker on jabarcloud') {
+                       
+            environment {
+                SSH_COMMAND = "ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa; git pull origin master'"     
+            }
+
+            steps{
+                    sshagent (['']){
+                        // ssh block
+                    sh 'ssh -o StrictHostKeyChecking=no $USER_VM@$HOST_VM106 "cd /home/ubuntu/app/jdsbot && $SSH_COMMAND \
+                                                                                    && docker-compose -f docker-compose-production.yml down \
+                                                                                    && docker-compose -f docker-compose-production.yml build --no-cache \
+                                                                                    && docker-compose -f docker-compose-production.yml up -d"'
+                                                                                        
+                    }
+                
+            }      
+        }
+        
+        stage('Test jabarcloud') {
+            
+            steps{
+                   sshagent (['']){
+                       // ssh block
+                       sh 'ssh -o StrictHostKeyChecking=no $USER_VM@$HOST_VM106 "echo ok"'
+                    }
+            }    
+        }        
+    
+    }
+} 
