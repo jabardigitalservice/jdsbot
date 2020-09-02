@@ -40,7 +40,9 @@ def get_project_list(auth_token):
 
     if req.status_code < 300:
         raw_response = req.json()
-        return {row['projectName']:row['_id'] for row in raw_response['results']}
+        return {
+            row['projectName'].strip() : row['_id'].strip() 
+            for row in raw_response['results']}
     else:
         raise Exception('Error response: ' + req.text)
 
@@ -50,6 +52,7 @@ def post_report(auth_token, data, files):
     if project_list is None:
         project_list = get_project_list(auth_token)
 
+        print('MASUK PROJECT LIST')
         if IS_DEBUG:
             print('project_list:', project_list)
 
