@@ -6,16 +6,11 @@ from datetime import datetime
 
 import sqlalchemy
 
-import bot_controller as bot
 import models.groupware as groupware
 import models.user as user
-
-# setup test database
-TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
-user.DATABASE_URL = TEST_DATABASE_URL
-user.db_meta.create_all(user.get_engine())
-
 import models.bot as bot_model
+
+import bot_controller as bot
 
 class TestBot(unittest.TestCase):
     def setUp(self):
@@ -24,6 +19,11 @@ class TestBot(unittest.TestCase):
         self.test_message_id = os.getenv('TEST_MESSAGE_ID')
         self.test_chat_id = os.getenv('TEST_CHAT_ID')
         self.test_photo_file_id = os.getenv('TEST_PHOTO_FILE_ID')
+
+        # setup test database
+        TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
+        user.DATABASE_URL = TEST_DATABASE_URL
+        user.db_meta.create_all(user.get_engine())
 
         groupware.LOGBOOK_API_URL = 'https://httpbin.org/anything'
 
@@ -44,6 +44,8 @@ class TestBot(unittest.TestCase):
                 },
             }
         }
+
+        bot.setup()
 
     def tearDown(self):
         user.db_exec('DROP TABLE users')

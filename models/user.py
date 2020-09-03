@@ -58,6 +58,8 @@ def load_user_data():
     ALIAS = { row[2]:row[0] for row in USER_LIST }
 
 def set_alias(username, new_alias):
+    global ALIAS
+
     print('set alias for : username', username, 'new_alias', new_alias)
     if new_alias in ALIAS:
         return (False, 'Alias already exists')

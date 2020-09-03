@@ -13,7 +13,6 @@ load_dotenv(dotenv_path=env_path)
 
 import models.groupware as groupware
 import models.user as user
-user.load_user_data()
 
 TELEGRAM_TOKEN=os.getenv('TELEGRAM_TOKEN')
 

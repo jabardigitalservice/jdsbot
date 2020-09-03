@@ -16,6 +16,10 @@ import models.user as user
 processed=[]
 START_TIME = time.time()
 
+def setup():
+    """ iniate bot_controller """
+    user.load_user_data()
+
 def action_lapor(item):
     """ action for /lapor command """
     # parse input
@@ -139,7 +143,6 @@ def action_setalias(telegram_item):
         'chat_id': telegram_item['message']['chat']['id'],
         'text': msg,
         'reply_to_message_id': telegram_item['message']['message_id'],
-        'parse_mode': 'MarkdownV2',
     })
 
     return None if not res else res
