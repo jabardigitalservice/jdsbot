@@ -11,9 +11,14 @@ load_dotenv()
 
 import models.groupware as groupware
 import models.bot as bot
+import models.user as user
 
 processed=[]
 START_TIME = time.time()
+
+def setup():
+    """ iniate bot_controller """
+    user.load_user_data()
 
 def action_lapor(item):
     """ action for /lapor command """
@@ -68,6 +73,20 @@ def action_about(telegram_item):
         'parse_mode': 'MarkdownV2',
     })
 
+def action_whatsnew(telegram_item):
+    """ action for /whatsnew command """
+    # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
+    msg = """Update per 30 Agutus 2020:
+\- Ada 2 command baru: `/whatsnew` dan `/setalias`
+  \- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
+  \- `/setalias` : Daripada menyebutkan nama username groupware yang belum tentu semua orang hafal, kini kita bisa mendaftarkan akun telegram masing-masing agar dapat ditambahkan dengan mention akun telegram selain dengan akun groupware. Cara menambahkannya adalah dengan memanggil command `/setalias <akun groupware> | <akun telegram>`. Contoh: `/setalias abdurrahman.shofy | @abdurrahman_shofy`
+"""
+    return bot.run_command('/sendMessage', {
+        'chat_id': telegram_item['message']['chat']['id'],
+        'text': msg,
+        'parse_mode': 'MarkdownV2',
+    })
+
 def action_help(telegram_item):
     """ action for /help command """
     msg = """Command\-command yang tersedia:
@@ -108,6 +127,26 @@ Peserta: rizkiadam01
         'parse_mode': 'MarkdownV2',
     })
 
+def action_setalias(telegram_item):
+    """ action for /whatsnew command """
+    # parse input
+    if 'text' in telegram_item['message']:
+        input_text = telegram_item['message']['text']
+
+    input_text = input_text.split(' ', maxsplit=1)[1] # start from after first ' '
+    val = input_text.split('|')
+    res, msg = user.set_alias(val[0].strip(), val[1].strip() )
+
+    print('hasil setalias:', res, msg)
+
+    bot.run_command('/sendMessage', {
+        'chat_id': telegram_item['message']['chat']['id'],
+        'text': msg,
+        'reply_to_message_id': telegram_item['message']['message_id'],
+    })
+
+    return None if not res else res
+
 def process_telegram_input(item):
     """ process a single telegram update item 
     Return
@@ -144,6 +183,8 @@ def process_telegram_input(item):
         '/start' : action_about,
         '/about' : action_about,
         '/help' : action_help,
+        '/whatsnew' : action_whatsnew,
+        '/setalias' : action_setalias,
     }
     command = input_text.split(' ', maxsplit=1)[0]
     sub_command = command.split('@')
