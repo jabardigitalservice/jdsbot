@@ -79,7 +79,7 @@ def action_whatsnew(telegram_item):
     msg = """Update per 30 Agutus 2020:
 \- Ada 2 command baru: `/whatsnew` dan `/setalias`
   \- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
-  \- `/setalias` : Daripada menyebutkan nama username groupware yang belum tentu semua orang hafal, kini kita bisa mendaftarkan akun telegram masing-masing agar dapat ditambahkan dengan mention akun telegram selain dengan akun groupware. Cara menambahkannya adalah dengan memanggil command `/setalias <akun groupware> | <akun telegram>`. Contoh: `/setalias abdurrahman.shofy | @abdurrahman_shofy`
+  \- `/setalias` : Daripada menyebutkan nama username groupware yang belum tentu semua orang hafal, kini kita bisa mendaftarkan akun telegram masing\-masing agar dapat ditambahkan dengan mention akun telegram selain dengan akun groupware\. Cara menambahkannya adalah dengan memanggil command `/setalias <akun groupware> | <akun telegram>`\. Contoh: `/setalias abdurrahman.shofy | @abdurrahman_shofy`
 """
     return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
