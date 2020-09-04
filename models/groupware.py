@@ -41,7 +41,7 @@ def get_project_list(auth_token):
     if req.status_code < 300:
         raw_response = req.json()
         return {
-            row['projectName'].strip() : row['_id'].strip() 
+            row['projectName'].strip().lower() : row['_id'].strip() 
             for row in raw_response['results']}
     else:
         raise Exception('Error response: ' + req.text)
@@ -55,6 +55,8 @@ def post_report(auth_token, data, files):
         print('MASUK PROJECT LIST')
         if IS_DEBUG:
             print('project_list:', project_list)
+
+    data['projectName'] = data['projectName'].lower()
 
     if data['projectName'] not in project_list:
         raise Exception("projectName '{}' not found".format(data['projectName']))

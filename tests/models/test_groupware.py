@@ -36,6 +36,29 @@ class TestGroupware(unittest.TestCase):
                 { 'evidenceTask': f}
             )
 
+    def test_project_name_random(self):
+        data = json.loads(json.dumps(self.default_data))
+        data['projectName'] = 'randomprojectskldfjlsdfjsd'
+
+        with self.assertRaises(Exception):
+            with open(self.default_file_path, 'rb') as f:
+                groupware.post_report(
+                    self.auth_token,
+                    data,
+                    { 'evidenceTask': f}
+                )
+
+    def test_project_name_random_case(self):
+        data = json.loads(json.dumps(self.default_data))
+        data['projectName'] = 'SaPaWarGa'
+
+        with open(self.default_file_path, 'rb') as f:
+            groupware.post_report(
+                self.auth_token,
+                data,
+                { 'evidenceTask': f}
+            )
+
     def test_validate_dateTask(self):
         data = json.loads(json.dumps(self.default_data))
 
