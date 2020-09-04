@@ -140,8 +140,9 @@ def process_report(telegram_item, fields, image_data):
 
     return True
 
-def process_error(telegram_item, msg):
+def process_error(telegram_item, e):
     """ process (and may be notify) error encountered """
+    msg = str(e)
     print('error:', msg)
     return run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
