@@ -72,7 +72,7 @@ def set_alias(username, new_alias):
         query_find_user, 
         username=username).fetchall()
     print('res_find_user', res_find_user)
-    if len(res_find_user) != 1:
+    if len(res_find_user) < 1:
         return (False, 'User not found')
 
     query_update = sqlalchemy.text("""
