@@ -14,7 +14,7 @@ PROJECT_LIST_API_URL = ROOT_API_URL+'/project/?limit=100&pageSize=100'
 
 TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
 IS_DEBUG=(os.getenv('IS_DEBUG', 'false').lower() == 'true')
-project_list = None
+PROJECT_LIST = None
 
 def get_token(username, password):
     """ dapetin token dari username & password """
@@ -31,8 +31,10 @@ def get_token(username, password):
     else:
         raise Exception('Error response: ' + req.text)
 
-def get_project_list(auth_token):
+def load_project_list(auth_token):
     """ dapetin list nama project & id nya """
+    global PROJECT_LIST
+
     headers = {
         'Authorization': 'Bearer ' + auth_token,
     }
@@ -40,28 +42,30 @@ def get_project_list(auth_token):
 
     if req.status_code < 300:
         raw_response = req.json()
-        return {
-            row['projectName'].strip().lower() : row['_id'].strip() 
-            for row in raw_response['results']}
+        PROJECT_LIST =  {
+            row['projectName'].strip().lower() : {
+                'id': row['_id'].strip() ,
+                'originalName': row['projectName'].strip(),
+            }
+            for row in raw_response['results']
+        }
     else:
         raise Exception('Error response: ' + req.text)
 
 def post_report(auth_token, data, files):
     """ post laporan """
-    global project_list
-    if project_list is None:
-        project_list = get_project_list(auth_token)
+    global PROJECT_LIST
 
-        print('MASUK PROJECT LIST')
-        if IS_DEBUG:
-            print('project_list:', project_list)
+    if PROJECT_LIST is None:
+        load_project_list(auth_token)
 
     data['projectName'] = data['projectName'].lower()
 
-    if data['projectName'] not in project_list:
+    if data['projectName'] not in PROJECT_LIST:
         raise Exception("projectName '{}' not found".format(data['projectName']))
     else:
-        data['projectId'] = project_list[data['projectName']]
+        data['projectId'] = PROJECT_LIST[data['projectName']]['id']
+        data['projectName'] = PROJECT_LIST[data['projectName']]['originalName'] # replace projectName with original name
 
     # dateTask validation
     if 'dateTask' not in data or len(data['dateTask'].strip()) < 1:
