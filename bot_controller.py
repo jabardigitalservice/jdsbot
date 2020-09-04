@@ -20,6 +20,12 @@ def setup():
     """ iniate bot_controller """
     user.load_user_data()
 
+    auth_token = user.get_user_token(os.getenv('TEST_USER'))
+    groupware.load_project_list(auth_token)
+
+    print('PROJECT_LIST:', groupware.PROJECT_LIST)
+    print('user.ALIAS:', user.ALIAS)
+
 def action_lapor(item):
     """ action for /lapor command """
     # parse input
