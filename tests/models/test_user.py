@@ -40,13 +40,44 @@ class TestUser(unittest.TestCase):
 
     def test_auth_custom_alias(self):
         test_alias = 'dummy_alias'
+        query_insert = sqlalchemy.text('INSERT INTO users (username, password) VALUES (:username, :password)')
+        user.get_db().execute(query_insert, 
+            username=self.testuser, 
+            password=self.testuser)
+        user.load_user_data()
+
+        # make sure alias not exists yet
+        self.assertIsNotNone(user.get_user_token(self.testuser))
+        with self.assertRaises(Exception):
+            user.get_user_token(test_alias)
+
+        # test adding alias
+        user.set_alias(self.testuser, test_alias)
+        self.assertIsNotNone(user.get_user_token(test_alias))
+
+        query_delete = sqlalchemy.text('DELETE FROM users WHERE ((username = :username))')
+        user.get_db().execute(query_delete, username=self.testuser)
+
+    def test_auth_alias_unknown_user(self):
+        res = user.set_alias('random_user', 'random_alias')
+        self.assertFalse(res[0])
+
+    def test_auth_duplicate_alias(self):
+        test_alias = 'dummy_alias'
         query_insert = sqlalchemy.text('INSERT INTO users (username, password, alias) VALUES (:username, :password, :alias)')
         user.get_db().execute(query_insert, 
             username=self.testuser, 
-            password=self.testuser, 
+            password=self.testuser,
             alias=test_alias)
         user.load_user_data()
+
+        # make sure alias exists
         self.assertIsNotNone(user.get_user_token(test_alias))
+
+        # test adding alias
+        res = user.set_alias(self.testuser, test_alias)
+        self.assertFalse(res[0])
+
         query_delete = sqlalchemy.text('DELETE FROM users WHERE ((username = :username))')
         user.get_db().execute(query_delete, username=self.testuser)
 
@@ -61,7 +92,7 @@ class TestUser(unittest.TestCase):
         user.get_db().execute(query_delete, username=self.testuser)
         user.load_user_data()
 
-    def setDown(self):
+    def tearDown(self):
         user.db_exec('DROP TABLE users')
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 import bot_controller
+bot_controller.setup()
 
 @app.route("/")
 def hello():
