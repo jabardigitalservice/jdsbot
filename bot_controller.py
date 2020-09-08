@@ -82,10 +82,11 @@ def action_about(telegram_item):
 def action_whatsnew(telegram_item):
     """ action for /whatsnew command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
-    msg = """Update per 30 Agutus 2020:
-\- Ada 2 command baru: `/whatsnew` dan `/setalias`
+    msg = """Update per 8 September 2020:
+\- Ada 3 command baru: `/whatsnew`\, `/setalias`\, dan `/listproject`
   \- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
   \- `/setalias` : Daripada menyebutkan nama username groupware yang belum tentu semua orang hafal, kini kita bisa mendaftarkan akun telegram masing\-masing agar dapat ditambahkan dengan mention akun telegram selain dengan akun groupware\. Cara menambahkannya adalah dengan memanggil command `/setalias <akun groupware> | <akun telegram>`\. Contoh: `/setalias abdurrahman.shofy | @abdurrahman_shofy`
+  \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
 """
     return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
@@ -100,6 +101,9 @@ def action_help(telegram_item):
 \- `/help` : menampilkan command\-command cara untuk menggunakan bot ini
 \- `/about` : menampilkan penjelasan tentang bot ini
 \- `/lapor` : Mengirimkan laporan ke aplikasi digiteam groupware JDS
+\- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
+\- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
+\- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
 
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
@@ -159,6 +163,19 @@ def action_setalias(telegram_item):
 
     return None if not res else res
 
+def action_listproject(telegram_item):
+    """ action for /listproject command """
+    # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
+    msg = "List project\-project di aplikasi DigiTeam saat ini:\n"
+    for item in groupware.PROJECT_LIST:
+        msg += "\- `{}`\n".format(groupware.PROJECT_LIST[item]['originalName'])
+
+    return bot.run_command('/sendMessage', {
+        'chat_id': telegram_item['message']['chat']['id'],
+        'text': msg,
+        'parse_mode': 'MarkdownV2',
+    })
+
 def process_telegram_input(item):
     """ process a single telegram update item 
     Return
@@ -197,8 +214,13 @@ def process_telegram_input(item):
         '/help' : action_help,
         '/whatsnew' : action_whatsnew,
         '/setalias' : action_setalias,
+        '/listproject': action_listproject,
     }
-    command = input_text.split(' ', maxsplit=1)[0]
+    command = input_text.split(' ', maxsplit=1)[0].strip()
+    if command[0] != '/':
+        print("First word ({}) is not a command (beginning with '/'). ignoring...".format(command))
+        return None
+
     sub_command = command.split('@')
     if len(sub_command) > 1:
         if sub_command[1].upper() != bot.BOT_USERNAME:
@@ -206,11 +228,11 @@ def process_telegram_input(item):
             return None
         command = sub_command[0]
 
+    command = command.lower()
     if command in available_commands :
         return available_commands[command](item)
     else:
-        # bot.process_error(item, "Unknown command '{}'".format(command))
-        print("Unknown command '{}'. ignoring...".format(command))
+        bot.process_error(item, "Unknown command '{}'".format(command))
         return None
 
 def loop_updates(updates):
