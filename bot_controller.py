@@ -167,7 +167,9 @@ def action_listproject(telegram_item):
     """ action for /listproject command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
     msg = "List project\-project di aplikasi DigiTeam saat ini:\n"
-    for item in groupware.PROJECT_LIST:
+
+    key_list = sorted(list(groupware.PROJECT_LIST.keys()))
+    for item in key_list:
         msg += "\- `{}`\n".format(groupware.PROJECT_LIST[item]['originalName'])
 
     return bot.run_command('/sendMessage', {
