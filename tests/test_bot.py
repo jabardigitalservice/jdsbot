@@ -3,8 +3,10 @@ import json
 import unittest
 import time
 from datetime import datetime
+from pathlib import Path
 
 import sqlalchemy
+import requests
 
 import models.groupware as groupware
 import models.user as user
@@ -13,12 +15,11 @@ import models.bot as bot_model
 import bot_controller as bot
 
 class TestBot(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         os.putenv('IS_DEBUG', 'false')
         self.test_user = os.getenv('TEST_USER')
-        self.test_message_id = os.getenv('TEST_MESSAGE_ID')
         self.test_chat_id = os.getenv('TEST_CHAT_ID')
-        self.test_photo_file_id = os.getenv('TEST_PHOTO_FILE_ID')
 
         # setup test database
         TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
@@ -26,6 +27,18 @@ class TestBot(unittest.TestCase):
         user.db_meta.create_all(user.get_engine())
 
         groupware.LOGBOOK_API_URL = 'https://httpbin.org/anything'
+
+        # send dummy data to replied to
+        image_file_path = Path(__file__).parent / 'single-pixel.png'
+        req = requests.post(
+            url=bot_model.ROOT_BOT_URL + '/sendPhoto',
+            files = { 'photo': open(image_file_path, 'rb') },
+            data = { 'chat_id': self.test_chat_id }
+        )
+        image_data = req.json()
+        largest_photo = max(image_data['result']['photo'], key=lambda k: k['file_size'])
+        self.test_message_id = image_data['result']['message_id']
+        self.test_photo_file_id = largest_photo['file_id']
 
         self.default_data = {
             'message': {
@@ -47,7 +60,8 @@ class TestBot(unittest.TestCase):
 
         bot.setup()
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(self):
         user.db_exec('DROP TABLE users')
 
     def test_empty_message(self):
