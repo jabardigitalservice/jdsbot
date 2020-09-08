@@ -198,7 +198,11 @@ def process_telegram_input(item):
         '/whatsnew' : action_whatsnew,
         '/setalias' : action_setalias,
     }
-    command = input_text.split(' ', maxsplit=1)[0]
+    command = input_text.split(' ', maxsplit=1)[0].strip()
+    if command[0] != '/':
+        print("First word ({}) is not a command (beginning with '/'). ignoring...".format(command))
+        return None
+
     sub_command = command.split('@')
     if len(sub_command) > 1:
         if sub_command[1].upper() != bot.BOT_USERNAME:
@@ -210,8 +214,7 @@ def process_telegram_input(item):
     if command in available_commands :
         return available_commands[command](item)
     else:
-        # bot.process_error(item, "Unknown command '{}'".format(command))
-        print("Unknown command '{}'. ignoring...".format(command))
+        bot.process_error(item, "Unknown command '{}'".format(command))
         return None
 
 def loop_updates(updates):
