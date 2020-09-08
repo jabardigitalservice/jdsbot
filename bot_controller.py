@@ -147,6 +147,7 @@ def action_setalias(telegram_item):
         print(e)
         print(traceback.print_exc())
         bot.process_error(telegram_item, e)
+        return None
 
     print('hasil setalias:', res, msg)
 
