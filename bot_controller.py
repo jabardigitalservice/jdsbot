@@ -206,6 +206,7 @@ def process_telegram_input(item):
             return None
         command = sub_command[0]
 
+    command = command.lower()
     if command in available_commands :
         return available_commands[command](item)
     else:
