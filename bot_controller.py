@@ -178,6 +178,26 @@ def action_listproject(telegram_item):
         'parse_mode': 'MarkdownV2',
     })
 
+def action_reload(telegram_item):
+    """ action for /reload_data command """
+    # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
+
+    if user.db is not None:
+        user.db.close()
+
+    try:
+        setup()
+    except Exception as e:
+        print(e)
+        print(traceback.print_exc())
+        bot.process_error(telegram_item, e)
+        return None
+
+    return bot.run_command('/sendMessage', {
+        'chat_id': telegram_item['message']['chat']['id'],
+        'text': 'reload success',
+    })
+
 def process_telegram_input(item):
     """ process a single telegram update item 
     Return
@@ -217,6 +237,7 @@ def process_telegram_input(item):
         '/whatsnew' : action_whatsnew,
         '/setalias' : action_setalias,
         '/listproject': action_listproject,
+        '/reload_data': action_reload,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':

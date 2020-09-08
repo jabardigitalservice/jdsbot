@@ -36,7 +36,7 @@ def get_engine():
 
 def get_db():
     global db
-    if db is None:
+    if db is None or db.closed:
         db = get_engine().connect()
     return db
 
