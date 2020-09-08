@@ -1,5 +1,6 @@
 import os
 import re
+import json
 from pathlib import Path
 
 import requests
@@ -52,27 +53,42 @@ def load_project_list(auth_token):
     else:
         raise Exception('Error response: ' + req.text)
 
-def post_report(auth_token, data, files):
-    """ post laporan """
+def validate_report(raw_data):
+    """ Validate report data
+    Returns
+    -------
+    list of Exception for all caught error. empty string for no error
+    """
     global PROJECT_LIST
 
-    if PROJECT_LIST is None:
-        load_project_list(auth_token)
-
-    data['projectName'] = data['projectName'].lower()
-
-    if data['projectName'] not in PROJECT_LIST:
-        raise Exception("projectName '{}' not found".format(data['projectName']))
-    else:
-        data['projectId'] = PROJECT_LIST[data['projectName']]['id']
-        data['projectName'] = PROJECT_LIST[data['projectName']]['originalName'] # replace projectName with original name
+    data = json.loads(json.dumps(raw_data))
+    errors = []
 
     # dateTask validation
     if 'dateTask' not in data or len(data['dateTask'].strip()) < 1:
-        raise ValueError('dateTask field cannot be empty')
+        errors.append(ValueError('dateTask field cannot be empty'))
+    elif not re.match("^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\dZ$",data['dateTask']):
+        errors.append(ValueError('dateTask format mismatch'))
 
-    if not re.match("^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\dZ$",data['dateTask']):
-        raise ValueError('dateTask format mismatch')
+    # project name validation
+    if 'projectName' not in data or len(data['projectName'].strip()) < 1:
+        errors.append(ValueError('projectName field cannot be empty'))
+    else:
+        original_project_name = data['projectName']
+        data['projectName'] = data['projectName'].lower()
+        if PROJECT_LIST is None:
+            load_project_list(auth_token)
+
+        if data['projectName'] not in PROJECT_LIST:
+            errors.append(ValueError("projectName '{}' not found".format(original_project_name)))
+
+    return errors
+
+def post_report(auth_token, data, files):
+    """ post laporan """
+    data['projectName'] = data['projectName'].lower()
+    data['projectId'] = PROJECT_LIST[data['projectName']]['id']
+    data['projectName'] = PROJECT_LIST[data['projectName']]['originalName'] # replace projectName with original name
 
     headers = {
         'Authorization': 'Bearer ' + auth_token,
@@ -80,7 +96,6 @@ def post_report(auth_token, data, files):
 
     if IS_DEBUG:
         print('sending input to groupware with data:', data)
-
 
     req = requests.post(url=LOGBOOK_API_URL, headers=headers, files=files, data=data)
     if IS_DEBUG:

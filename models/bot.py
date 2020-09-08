@@ -120,6 +120,15 @@ def process_report(telegram_item, fields, image_data):
     print('>>> PROCESSING REPORT >>>')
     print('Fields:', fields, 'File type:', image_data['type'])
 
+    errors = groupware.validate_report(fields)
+    if len(errors) > 0:
+        msg = "\n".join([
+            '- ' + str(e)
+            for e in errors
+        ])
+        process_error(telegram_item, msg)
+        return None
+
     if 'peserta' in fields:
         result_msg = "Results:\n"
         for username in fields['peserta']:
