@@ -150,19 +150,16 @@ class TestBot(unittest.TestCase):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias random.user|@random_alias'
         self.assertIsNone(bot.process_telegram_input(item))
-
-    @unittest.skip(""" sekarang ini mekanisme exception projectName not found 
-    tidak mendukung unittest karena perlu di capture tanpa di raise ulang agar 
-    bisa didapatkan error message. perlu mekanisme validasi sebelum send satu2 
-    per username agar tidak berulang dan bisa dipisah dari validasi auth per 
-    user """)
     def test_lapor_random_project_name(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor asl|unittest\npeserta:' + self.test_user
-        with self.assertRaises(Exception):
-            bot.process_telegram_input(item)
+        self.assertIsNone(bot.process_telegram_input(item))
 
-    @unittest.skip('same reason as above')
+    @unittest.skip(""" Untuk testing username not found sejauh ini belum ditemukan
+    format testing yang baik karena dalam 1 kali submisi bisa ada bbrp user 
+    sekaligus yang dilaporkan sehingga sulit ditentukan jika hanya sebagian user
+    saja yang gagal apakah kasus tersebut gagal secara keseluruhan atau tidak
+    """)
     def test_lapor_random_user(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta: random_user'

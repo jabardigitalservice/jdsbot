@@ -86,6 +86,8 @@ def validate_report(raw_data):
 
 def post_report(auth_token, data, files):
     """ post laporan """
+    global PROJECT_LIST
+
     data['projectName'] = data['projectName'].lower()
     data['projectId'] = PROJECT_LIST[data['projectName']]['id']
     data['projectName'] = PROJECT_LIST[data['projectName']]['originalName'] # replace projectName with original name

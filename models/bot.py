@@ -19,8 +19,8 @@ TELEGRAM_TOKEN=os.getenv('TELEGRAM_TOKEN')
 BOT_USERNAME=os.getenv('BOT_USERNAME').upper()
 BOT_NICKNAME=os.getenv('BOT_NICKNAME', BOT_USERNAME).upper()
 
-EMOJI_SUCCESS = "\U0001F44C"
-EMOJI_FAILED = "\U0001F61F"
+EMOJI_SUCCESS = "✅"
+EMOJI_FAILED = "❌"
 
 ROOT_BOT_URL = 'https://api.telegram.org/bot{}'.format(TELEGRAM_TOKEN)
 ROOT_BOT_FILE_URL = 'https://api.telegram.org/file/bot{}'.format(TELEGRAM_TOKEN)
@@ -74,9 +74,24 @@ def process_images(photo_list):
 
     return get_file(largest_photo['file_id'])
 
-def post_report_single(username, input_fields, image_data):
+def post_report_single(username, fields, image_data):
     """ send a single report """
     print('sending report for ' + username)
+
+    files = {
+        'evidenceTask' : image_data['content'],
+    }
+
+    auth_token = user.get_user_token(username)
+    res = groupware.post_report(auth_token, fields, files)
+    print('ok')
+    return True
+
+def process_report(telegram_item, input_fields, image_data):
+    """ process parsing result from our telegram processor"""
+    print('>>> PROCESSING REPORT >>>')
+    print('Fields:', input_fields, 'File type:', image_data['type'])
+
     fields = json.loads(json.dumps(input_fields)) # clone fields to avoid changing source values
     field_aliases = {
         'tanggal': 'dateTask',
@@ -106,24 +121,10 @@ def post_report_single(username, input_fields, image_data):
 
     fields['dateTask'] += groupware.TIMESTAMP_TRAIL_FORMAT
 
-    files = {
-        'evidenceTask' : image_data['content'],
-    }
-
-    auth_token = user.get_user_token(username)
-    res = groupware.post_report(auth_token, fields, files)
-    print('ok')
-    return True
-
-def process_report(telegram_item, fields, image_data):
-    """ process parsing result from our telegram processor"""
-    print('>>> PROCESSING REPORT >>>')
-    print('Fields:', fields, 'File type:', image_data['type'])
-
     errors = groupware.validate_report(fields)
     if len(errors) > 0:
-        msg = "\n".join([
-            '- ' + str(e)
+        msg = ''.join([
+            "\n- " + str(e)
             for e in errors
         ])
         process_error(telegram_item, msg)
@@ -132,14 +133,16 @@ def process_report(telegram_item, fields, image_data):
     if 'peserta' in fields:
         result_msg = "Results:\n"
         for username in fields['peserta']:
-            status = ' | Berhasil ' + EMOJI_SUCCESS
+            status = ' | Berhasil '
+            bullet = EMOJI_SUCCESS
             try:
                 result = post_report_single(username, fields, image_data)
             except Exception as e:
                 print(e)
                 print(traceback.print_exc())
                 status = ' | Gagal - {}'.format(e)
-            result_msg += "- {} {}\n".format(username, status)
+                bullet = EMOJI_FAILED
+            result_msg += "{} {} {}\n".format(bullet, username, status)
 
         run_command('/sendMessage', {
             'chat_id': telegram_item['message']['chat']['id'],
