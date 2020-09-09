@@ -131,7 +131,7 @@ def process_report(telegram_item, input_fields, image_data):
         return None
 
     if 'peserta' in fields:
-        result_msg = "Results:\n"
+        result_msg = "Hasil:\n"
         for username in fields['peserta']:
             status = ' | Berhasil '
             bullet = EMOJI_SUCCESS

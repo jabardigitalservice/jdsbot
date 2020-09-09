@@ -23,14 +23,15 @@ def get_token(username, password):
         'username': username,
         'password': password,
     })
+    res = req.json()
 
     if req.status_code < 300:
         if IS_DEBUG:
             print('get token response:', req.text)
-        res = req.json()
         return res['auth_token']
     else:
-        raise Exception('Error response: ' + req.text)
+        msg = res['detail'] if 'detail' in res else req.text
+        raise Exception(msg)
 
 def load_project_list(auth_token):
     """ dapetin list nama project & id nya """
