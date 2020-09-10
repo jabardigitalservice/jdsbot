@@ -64,7 +64,7 @@ def get_attendance(auth_token, date=None):
         'Authorization': 'Bearer ' + auth_token,
     }
 
-    api_url = ROOT_API_URL+'/attendance/?limit=100&pageSize=100&date={}'.format(date)
+    api_url = ROOT_API_URL+'/attendance/?limit=200&pageSize=200&date={}'.format(date)
     req = requests.get(
         url=api_url, 
         headers=headers
