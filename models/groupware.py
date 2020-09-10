@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import datetime
 from pathlib import Path
 
 import requests
@@ -53,6 +54,27 @@ def load_project_list(auth_token):
         }
     else:
         raise Exception('Error response: ' + req.text)
+
+def get_attendance(auth_token, date=None):
+    """ get list of attendace from /attendance endpoint """
+    if date is None:
+        date = str(datetime.date.today())
+
+    headers = {
+        'Authorization': 'Bearer ' + auth_token,
+    }
+
+    api_url = ROOT_API_URL+'/attendance/?limit=100&pageSize=100&date={}'.format(date)
+    req = requests.get(
+        url=api_url, 
+        headers=headers
+    )
+
+    if req.status_code >= 300:
+        raise Exception('Error response: ' + req.text)
+
+    raw_response = req.json()
+    return raw_response['results']
 
 def validate_report(raw_data):
     """ Validate report data

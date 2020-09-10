@@ -150,10 +150,16 @@ class TestBot(unittest.TestCase):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias random.user|@random_alias'
         self.assertIsNone(bot.process_telegram_input(item))
+
     def test_lapor_random_project_name(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor asl|unittest\npeserta:' + self.test_user
         self.assertIsNone(bot.process_telegram_input(item))
+
+    def test_cekabsensi(self):
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/cekabsensi'
+        self.assertIsNotNone(bot.process_telegram_input(item))
 
     @unittest.skip(""" Untuk testing username not found sejauh ini belum ditemukan
     format testing yang baik karena dalam 1 kali submisi bisa ada bbrp user 

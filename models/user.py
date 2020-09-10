@@ -2,6 +2,7 @@
 Currently only support MySQL
 """
 import os
+import datetime
 from pathlib import Path
 
 import sqlalchemy
@@ -100,3 +101,37 @@ def get_user_token(username):
         password = username
 
     return groupware.get_token(username, password)
+
+def get_users_attendance(date=None):
+    """ get list of user with its attendence """
+    global ALIAS
+    global PASSWORD
+
+    auth_token = get_user_token(os.getenv('TEST_USER'))
+    ALIAS_INV = {v:k for k, v in ALIAS.items()}
+
+    attendance_list = groupware.get_attendance(auth_token, date)
+    attendance_list = {
+        row['username'] : row['fullname']
+        for row in attendance_list
+    }
+
+    results= []
+    for username in PASSWORD:
+        if username in attendance_list:
+            results.append([
+                username,
+                attendance_list[username],
+                ALIAS_INV[username],
+                True,
+            ])
+        else:
+            results.append([
+                username,
+                None,
+                ALIAS_INV[username],
+                False,
+            ])
+
+    return results
+

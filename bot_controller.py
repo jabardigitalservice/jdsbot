@@ -82,11 +82,9 @@ def action_about(telegram_item):
 def action_whatsnew(telegram_item):
     """ action for /whatsnew command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
-    msg = """Update per 8 September 2020:
-\- Ada 3 command baru: `/whatsnew`\, `/setalias`\, dan `/listproject`
-  \- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
-  \- `/setalias` : Daripada menyebutkan nama username groupware yang belum tentu semua orang hafal, kini kita bisa mendaftarkan akun telegram masing\-masing agar dapat ditambahkan dengan mention akun telegram selain dengan akun groupware\. Cara menambahkannya adalah dengan memanggil command `/setalias <akun groupware> | <akun telegram>`\. Contoh: `/setalias abdurrahman.shofy | @abdurrahman_shofy`
-  \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
+    msg = """Update per 10 September 2020:
+\- Ada 1 command baru: `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
+\- Perubahan format response sehingga lebih jelas dan mudah dibaca
 """
     return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
@@ -104,6 +102,7 @@ def action_help(telegram_item):
 \- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
 \- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
 \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
+\- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
 
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
@@ -180,8 +179,6 @@ def action_listproject(telegram_item):
 
 def action_reload(telegram_item):
     """ action for /reload_data command """
-    # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
-
     if user.db is not None:
         user.db.close()
 
@@ -197,6 +194,27 @@ def action_reload(telegram_item):
         'chat_id': telegram_item['message']['chat']['id'],
         'text': 'reload success',
     })
+
+def action_cekabsensi(telegram_item):
+    """ action for /cekabsensi command """
+    date = datetime.today().strftime('%Y-%m-%d')
+    msg = "Yang belum absensi pada {}:\n".format(str(date))
+    attendance_list = user.get_users_attendance(date)
+
+    msg += "\n".join([
+        "- {} ({})".format(
+            row[0],
+            row[2]
+        )
+        for row in attendance_list
+        if not row[3]
+    ])
+
+    return bot.run_command('/sendMessage', {
+        'chat_id': telegram_item['message']['chat']['id'],
+        'text': msg,
+    })
+
 
 def process_telegram_input(item):
     """ process a single telegram update item 
@@ -238,6 +256,7 @@ def process_telegram_input(item):
         '/setalias' : action_setalias,
         '/listproject': action_listproject,
         '/reload_data': action_reload,
+        '/cekabsensi': action_cekabsensi,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':
