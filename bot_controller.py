@@ -201,14 +201,16 @@ def action_cekabsensi(telegram_item):
     msg = "Yang belum absensi pada {}:\n".format(str(date))
     attendance_list = user.get_users_attendance(date)
 
-    msg += "\n".join([
-        "- {} ({})".format(
-            row[0],
-            row[2]
-        )
-        for row in attendance_list
-        if not row[3]
-    ])
+    row_num = 1
+    for row in attendance_list:
+        if not row[3]:
+            msg += "{}. {} ({})\n".format(
+                row_num,
+                row[0],
+                row[2]
+            )
+
+            row_num += 1
 
     return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
