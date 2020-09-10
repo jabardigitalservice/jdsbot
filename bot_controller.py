@@ -37,7 +37,7 @@ def action_lapor(item):
     lines = input_text.split("\n")
     first_params = lines[0]
     first_params = first_params[first_params.find(' ')+1 :] # start from after first ' '
-    first_params = first_params.split('|') # split with '|' 
+    first_params = first_params.split('|') # split with '|'
     if len(first_params) != 2 :
         bot.process_error(item, 'Mismatched format')
         return
@@ -198,19 +198,26 @@ def action_reload(telegram_item):
 def action_cekabsensi(telegram_item):
     """ action for /cekabsensi command """
     date = datetime.today().strftime('%Y-%m-%d')
-    msg = "Yang belum absensi pada {}:\n".format(str(date))
     attendance_list = user.get_users_attendance(date)
+    attendance_msg = ''
 
     row_num = 1
     for row in attendance_list:
         if not row[3]:
-            msg += "{}. {} ({})\n".format(
+            attendance_msg += "{}. {} ({})\n".format(
                 row_num,
                 row[0],
                 row[2]
             )
 
             row_num += 1
+
+    msg = """#INFOABSENSI
+
+Halo-halo digiteam,
+Berikut nama-nama yang belum checkin kehadiran hari ini ({}) :
+{}
+Yuk ditunggu buat checkin langsung di aplikasi digiteam ya  https://groupware.digitalservice.id/ . Terimakasih & Tetap Semangat ❤""".format(date, attendance_msg)
 
     return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
@@ -219,7 +226,7 @@ def action_cekabsensi(telegram_item):
 
 
 def process_telegram_input(item):
-    """ process a single telegram update item 
+    """ process a single telegram update item
     Return
     ------
     mixed:
