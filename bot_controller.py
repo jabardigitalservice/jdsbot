@@ -3,7 +3,7 @@ This module handle all function regarding bot actions including parsing telegram
 update data, sending telegram message, handling command and input, etc
 """
 import os, json, time, traceback
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 import requests
 from dotenv import load_dotenv
@@ -17,6 +17,9 @@ GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
 processed=[]
 START_TIME = time.time()
+
+# timezone for Asia/Jakarta (UTC+7)
+TIMEZONE = timezone(timedelta(hours=7)) 
 
 def setup():
     """ iniate bot_controller """
@@ -201,7 +204,7 @@ def action_cekabsensi(telegram_item):
     """ action for /cekabsensi command """
     global GROUPWARE_WEB_URL
 
-    now = datetime.now()
+    now = datetime.now(TIMEZONE)
     attendance_list = user.get_users_attendance(now.strftime('%Y-%m-%d'))
     attendance_msg = ''
 
