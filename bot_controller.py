@@ -280,11 +280,17 @@ def process_telegram_input(item):
         command = sub_command[0]
 
     command = command.lower()
-    if command in available_commands :
-        return available_commands[command](item)
-    else:
+    if command not in available_commands :
         bot.process_error(item, "Unknown command '{}'".format(command))
         return None
+
+    try:
+        res = available_commands[command](item)
+    except Exception as e:
+        bot.process_error(item, "Unknown command '{}'".format(command))
+        return None
+    finally:
+        return res
 
 def loop_updates(updates):
     """ loop through all update from telegram's getUpdates endpoint """

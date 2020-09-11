@@ -122,6 +122,16 @@ def process_report(telegram_item, input_fields, image_data):
     fields['dateTask'] += groupware.TIMESTAMP_TRAIL_FORMAT
 
     errors = groupware.validate_report(fields)
+
+    # cek groupware api status
+    req = requests.get(
+        url=groupware.LOGBOOK_API_URL, 
+        headers={
+        'Authorization': 'Bearer ' + user.get_user_token(os.getenv('TEST_USER')),
+    })
+    if req.status_code >= 300:
+        errors.append('Error groupware status code : {}'.format(req.status_code))
+
     if len(errors) > 0:
         msg = ''.join([
             "\n- " + str(e)
