@@ -13,6 +13,8 @@ import models.groupware as groupware
 import models.bot as bot
 import models.user as user
 
+GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
+
 processed=[]
 START_TIME = time.time()
 
@@ -197,12 +199,14 @@ def action_reload(telegram_item):
 
 def action_cekabsensi(telegram_item):
     """ action for /cekabsensi command """
-    date = datetime.today().strftime('%Y-%m-%d')
-    attendance_list = user.get_users_attendance(date)
+    global GROUPWARE_WEB_URL
+
+    now = datetime.now()
+    attendance_list = user.get_users_attendance(now.strftime('%Y-%m-%d'))
     attendance_msg = ''
 
     row_num = 1
-    for row in attendance_list:
+    for row in sorted(attendance_list):
         if not row[3]:
             attendance_msg += "{}. {} ({})\n".format(
                 row_num,
@@ -215,9 +219,13 @@ def action_cekabsensi(telegram_item):
     msg = """#INFOABSENSI
 
 Halo-halo digiteam,
-Berikut nama-nama yang belum checkin kehadiran hari ini ({}) :
+Berikut nama-nama yang belum checkin kehadiran hari ini ({} sampai dengan pukul {}) :
 {}
-Yuk ditunggu buat checkin langsung di aplikasi digiteam ya  https://groupware.digitalservice.id/ . Terimakasih & Tetap Semangat ❤""".format(date, attendance_msg)
+Yuk ditunggu buat checkin langsung di aplikasi digiteam ya {}. Terimakasih & Tetap Semangat ❤""".format(
+    now.strftime('%Y-%m-%d'), 
+    now.strftime('%H:%M'), 
+    attendance_msg,
+    GROUPWARE_WEB_URL)
 
     return bot.run_command('/sendMessage', {
         'chat_id': telegram_item['message']['chat']['id'],
@@ -287,10 +295,10 @@ def process_telegram_input(item):
     try:
         res = available_commands[command](item)
     except Exception as e:
-        bot.process_error(item, "Unknown command '{}'".format(command))
+        bot.process_error(item, e)
         return None
-    finally:
-        return res
+
+    return res
 
 def loop_updates(updates):
     """ loop through all update from telegram's getUpdates endpoint """
