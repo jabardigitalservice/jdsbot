@@ -16,7 +16,7 @@ class TestGroupware(unittest.TestCase):
 
         self.default_data = {
             'dateTask' : datetime.now().strftime('%Y-%m-%dT00:00:00.000Z'),
-            'projectName' : 'Sapawarga', # project nam (from db)
+            'projectName' : 'Riset', # project nam (from db)
             'nameTask': 'Contoh',
             'difficultyTask': 3, # integer 1-5
             'organizerTask' : 'PLD',
@@ -27,6 +27,8 @@ class TestGroupware(unittest.TestCase):
         }
 
         self.default_file_path = Path(__file__).parent.parent / 'single-pixel.png'
+
+        groupware.load_project_list(self.auth_token)
 
     def test_normal_input(self):
         with open(self.default_file_path, 'rb') as f:
@@ -69,13 +71,8 @@ class TestGroupware(unittest.TestCase):
         ]
         for i in wrong_values:
             data['dateTask'] = i
-            with self.assertRaises(ValueError):
-                with open(self.default_file_path, 'rb') as f:
-                    groupware.post_report(
-                        self.auth_token,
-                        data,
-                        { 'evidenceTask': f}
-                    )
+            res = groupware.validate_report(data)
+            self.assertTrue(len(res) > 0)
 
 
 if __name__ == '__main__':
