@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
+import models.chat_history as chat_history
 import models.groupware as groupware
 import models.user as user
 
@@ -139,6 +140,11 @@ def process_report(telegram_item, input_fields, image_data):
         ])
         process_error(telegram_item, msg)
         return None
+
+    chat_history.insert(
+        chat_id=telegram_item['message']['chat']['id'],
+        message_id=telegram_item['message']['message_id'],
+        content=telegram_item)
 
     if 'peserta' in fields:
         result_msg = "Hasil:\n"
