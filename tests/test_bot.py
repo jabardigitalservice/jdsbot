@@ -8,6 +8,7 @@ from pathlib import Path
 import sqlalchemy
 import requests
 
+import models.db as db
 import models.groupware as groupware
 import models.user as user
 import models.bot as bot_model
@@ -23,8 +24,8 @@ class TestBot(unittest.TestCase):
 
         # setup test database
         TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
-        user.DATABASE_URL = TEST_DATABASE_URL
-        user.db_meta.create_all(user.get_engine())
+        db.DATABASE_URL = TEST_DATABASE_URL
+        user.create_table()
 
         groupware.LOGBOOK_API_URL = 'https://httpbin.org/anything'
 
@@ -62,7 +63,7 @@ class TestBot(unittest.TestCase):
 
     @classmethod
     def tearDownClass(self):
-        user.db_exec('DROP TABLE users')
+        db.db_exec('DROP TABLE users')
 
     def test_empty_message(self):
         item = {}
@@ -131,7 +132,7 @@ class TestBot(unittest.TestCase):
             INSERT INTO 
             users(username, password) 
             VALUES(:username, :password)""")
-        user.get_db().execute(query_insert,
+        db.get_conn().execute(query_insert,
             username=self.test_user, 
             password=self.test_user)
 

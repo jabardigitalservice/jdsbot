@@ -10,43 +10,26 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
+import models.db as db
 import models.groupware as groupware
 
-DATABASE_URL = os.getenv('DATABASE_URL')
-
-# ONLY FOR MYSQL
-db_meta = sqlalchemy.MetaData()
-USER_TABLE_DEFINITION = sqlalchemy.Table(
-   'users', db_meta, 
-   sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
-   sqlalchemy.Column('username', sqlalchemy.String(100)), 
-   sqlalchemy.Column('password', sqlalchemy.String(100)), 
-   sqlalchemy.Column('alias', sqlalchemy.String(100)), 
-)
 # global variables to store user data
-engine=None
-db=None
 PASSWORD = {}
 ALIAS = {}
 
-def get_engine():
-    global engine
-    if engine is None:
-        engine = sqlalchemy.create_engine(DATABASE_URL)
-    return engine
-
-def get_db():
-    global db
-    if db is None or db.closed:
-        db = get_engine().connect()
-    return db
-
-def db_exec(*args):
-    # with engine.connect() as db:
-    return get_db().execute(*args)
+def create_table():
+    DB_META = sqlalchemy.MetaData()
+    USER_TABLE_DEFINITION = sqlalchemy.Table(
+       'users', DB_META, 
+       sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
+       sqlalchemy.Column('username', sqlalchemy.String(100)), 
+       sqlalchemy.Column('password', sqlalchemy.String(100)), 
+       sqlalchemy.Column('alias', sqlalchemy.String(100)), 
+    )
+    DB_META.create_all(db.get_engine())
 
 def get_user_list():
-    res = db_exec('SELECT username, password, alias FROM users')
+    res = db.db_exec('SELECT username, password, alias FROM users')
 
     return [ row for row in res ]
 
@@ -69,7 +52,7 @@ def set_alias(username, new_alias):
         SELECT * 
         FROM users 
         WHERE username = :username""")
-    res_find_user = get_db().execute(
+    res_find_user = db.get_conn().execute(
         query_find_user, 
         username=username).fetchall()
     print('res_find_user', res_find_user)
@@ -80,7 +63,7 @@ def set_alias(username, new_alias):
         UPDATE users 
         SET alias = :alias 
         WHERE username = :username""")
-    res = get_db().execute(
+    res = db.get_conn().execute(
         query_update,
         alias=new_alias, 
         username=username)
