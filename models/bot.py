@@ -79,7 +79,7 @@ def post_report_single(username, fields, image_data):
     print('sending report for ' + username)
 
     files = {
-        'evidenceTask' : image_data['content'],
+        'evidenceTask' : ('image.' + image_data['type'], image_data['content'], 'image/' + image_data['type']),
     }
 
     auth_token = user.get_user_token(username)
@@ -125,7 +125,7 @@ def process_report(telegram_item, input_fields, image_data):
 
     # cek groupware api status
     req = requests.get(
-        url=groupware.LOGBOOK_API_URL, 
+        url=groupware.LOGBOOK_API_URL,
         headers={
         'Authorization': 'Bearer ' + user.get_user_token(os.getenv('TEST_USER')),
     })
