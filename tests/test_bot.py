@@ -11,6 +11,7 @@ import requests
 import models.db as db
 import models.groupware as groupware
 import models.user as user
+import models.chat_history as chat_history
 import models.bot as bot_model
 
 import bot_controller as bot
@@ -26,6 +27,7 @@ class TestBot(unittest.TestCase):
         TEST_DATABASE_URL=os.getenv('TEST_DATABASE_URL', 'sqlite:///unittest.db')
         db.DATABASE_URL = TEST_DATABASE_URL
         user.create_table()
+        chat_history.create_table()
 
         groupware.LOGBOOK_API_URL = 'https://httpbin.org/anything'
 
