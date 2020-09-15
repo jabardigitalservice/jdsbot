@@ -2,7 +2,7 @@
 This module handle all function regarding bot actions including parsing telegram
 update data, sending telegram message, handling command and input, etc
 """
-import os, json, time, traceback
+import os, json, time, traceback, re
 from datetime import datetime, timezone, timedelta
 
 import requests
@@ -19,7 +19,7 @@ processed=[]
 START_TIME = time.time()
 
 # timezone for Asia/Jakarta (UTC+7)
-TIMEZONE = timezone(timedelta(hours=7)) 
+TIMEZONE = timezone(timedelta(hours=7))
 
 def setup():
     """ iniate bot_controller """
@@ -58,7 +58,11 @@ def action_lapor(item):
             field_name = val[0].lower()
             content = val[1]
             if field_name == 'peserta':
-                data[field_name] = [ name.strip() for name in content.split(',') ]
+                data[field_name] = [
+                    name.strip()
+                    for name in re.split(',|\ ', content)
+                    if len(name.strip()) > 0
+                ]
             else:
                 data[field_name] = content
 
