@@ -131,7 +131,7 @@ def process_report(telegram_item, input_fields, image_data):
         'Authorization': 'Bearer ' + user.get_user_token(os.getenv('TEST_USER')),
     })
     if req.status_code >= 300:
-        errors.append('Error groupware status code : {}'.format(req.status_code))
+        errors.append("Groupware status code : {}\nSepertinya sedang ada ganguan pada sistem groupware. Silahkan coba lagi setelah beberapa saat".format(req.status_code))
 
     if len(errors) > 0:
         msg = ''.join([
