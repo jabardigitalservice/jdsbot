@@ -141,10 +141,10 @@ def process_report(telegram_item, input_fields, image_data):
         process_error(telegram_item, msg)
         return None
 
-    chat_history.insert(
-        chat_id=telegram_item['message']['chat']['id'],
-        message_id=telegram_item['message']['message_id'],
-        content=telegram_item)
+    # chat_history.insert(
+        # chat_id=telegram_item['message']['chat']['id'],
+        # message_id=telegram_item['message']['message_id'],
+        # content=telegram_item)
 
     if 'peserta' in fields:
         results = []
