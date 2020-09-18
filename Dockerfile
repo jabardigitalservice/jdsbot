@@ -18,4 +18,4 @@ COPY . /app
 
 EXPOSE 80
 
-CMD gunicorn --bind 0.0.0.0:80 example:app -w 4 -k uvicorn.workers.UvicornWorker
+CMD gunicorn --bind 0.0.0.0:80 example:app -k uvicorn.workers.UvicornWorker
