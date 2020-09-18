@@ -145,6 +145,12 @@ def process_report(telegram_item, input_fields, image_data):
         # chat_id=telegram_item['message']['chat']['id'],
         # message_id=telegram_item['message']['message_id'],
         # content=telegram_item)
+    def send_result(result):
+        run_command('/sendMessage', {
+            'chat_id': telegram_item['message']['chat']['id'],
+            'text': "Hasil:\n" + "\n".join(results),
+            'reply_to_message_id': telegram_item['message']['message_id']
+        })
 
     if 'peserta' in fields:
         results = []
@@ -162,13 +168,12 @@ def process_report(telegram_item, input_fields, image_data):
 
             # display result for each 100 user
             if len(results) >= 100:
-                run_command('/sendMessage', {
-                    'chat_id': telegram_item['message']['chat']['id'],
-                    'text': "Hasil:\n" + "\n".join(results),
-                    'reply_to_message_id': telegram_item['message']['message_id']
-                })
-
+                send_result(results)
                 results = []
+
+        # if there are still results left
+        if len(results) > 0:
+            send_result(results)
 
     return True
 
