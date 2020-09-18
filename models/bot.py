@@ -166,9 +166,14 @@ def process_report(telegram_item, input_fields, image_data):
                 bullet = EMOJI_FAILED
             results.append("{} {} {}".format(bullet, username, status))
 
-        # display result for each 100 user
-        for i in range(0, len(results), 100):
-            send_result(results[i:i+100])
+            # display result for each 100 user
+            if len(results) >= 100:
+                send_result(results)
+                results = []
+
+        # if there are still results left
+        if len(results) > 0:
+            send_result(results)
 
     return True
 
