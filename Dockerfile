@@ -18,4 +18,4 @@ COPY . /app
 
 EXPOSE 80
 
-CMD uvicorn server:app
+CMD uvicorn server:app --port 80
