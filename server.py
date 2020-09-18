@@ -2,8 +2,9 @@ import os, json
 
 from passlib.hash import pbkdf2_sha256
 
-from flask import Flask, request, jsonify, abort
-app = Flask(__name__)
+from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
+
+app = FastAPI()
 
 import bot_controller
 bot_controller.setup()
@@ -11,22 +12,22 @@ bot_controller.setup()
 def verify_token(token):
     """ verifiy access token """
     if not pbkdf2_sha256.verify(token, os.getenv('TOKEN_SECRET')):
-        abort(401)
+        raise HTTPException(status_code=401, detail="Not Authorized")
 
-@app.route('/')
+@app.get('/')
 def index():
     return "ok"
 
-@app.route('/telegram/<token>', methods=['POST'])
-def process_telegram(token=None):
+@app.post('/telegram/{token}')
+async def process_telegram(request: Request, background_tasks: BackgroundTasks, token=None):
     verify_token(token)
 
-    input_data = json.loads(request.data)
-    bot_controller.process_telegram_input(input_data)
+    input_data = await request.json()
+    background_tasks.add_task(bot_controller.process_telegram_input, input_data)
     return 'ok'
 
-@app.route('/cekabsensi/<token>', methods=['POST'])
-def cek_status(token=None):
+@app.post('/cekabsensi/{token}')
+async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token=None):
     verify_token(token)
 
     data = {
@@ -36,9 +37,7 @@ def cek_status(token=None):
             }
         }
     }
-    bot_controller.action_cekabsensi(data)
+    background_tasks.add_task(bot_controller.action_cekabsensi, data)
     return 'ok'
 
-if __name__ == "__main__":
-    app.run()
 

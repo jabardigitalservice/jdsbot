@@ -1,6 +1,6 @@
 FROM python:alpine3.7
 
-# copy only requirements.txt as it rarely changed. This is done to utilize 
+# copy only requirements.txt as it rarely changed. This is done to utilize
 # docker layer caching, thus avoid calling 'pip install' during every build
 # ref: https://towardsdatascience.com/docker-for-python-development-83ae714468ac#3837
 COPY requirements.txt /app/
@@ -18,6 +18,4 @@ COPY . /app
 
 EXPOSE 80
 
-ENV THREAD_NUM=2
-
-CMD gunicorn --bind 0.0.0.0:80 server:app --thread $THREAD_NUM
+CMD uvicorn server:app
