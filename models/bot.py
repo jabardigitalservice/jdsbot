@@ -147,7 +147,7 @@ def process_report(telegram_item, input_fields, image_data):
         content=telegram_item)
 
     if 'peserta' in fields:
-        result_msg = "Hasil:\n"
+        results = []
         for username in fields['peserta']:
             status = ' | Berhasil '
             bullet = EMOJI_SUCCESS
@@ -158,13 +158,15 @@ def process_report(telegram_item, input_fields, image_data):
                 print(traceback.print_exc())
                 status = ' | Gagal - {}'.format(e)
                 bullet = EMOJI_FAILED
-            result_msg += "{} {} {}\n".format(bullet, username, status)
+            results.append("{} {} {}".format(bullet, username, status))
 
-        run_command('/sendMessage', {
-            'chat_id': telegram_item['message']['chat']['id'],
-            'text': result_msg,
-            'reply_to_message_id': telegram_item['message']['message_id']
-        })
+        # display result for each 100 user
+        for i in range(0, len(results), 100):
+            run_command('/sendMessage', {
+                'chat_id': telegram_item['message']['chat']['id'],
+                'text': "Hasil:\n" + "\n".join(results[i:i+100]),
+                'reply_to_message_id': telegram_item['message']['message_id']
+            })
 
     return True
 
