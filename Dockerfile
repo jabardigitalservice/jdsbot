@@ -1,4 +1,4 @@
-FROM python:alpine3.7
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7-alpine3.8
 
 # copy only requirements.txt as it rarely changed. This is done to utilize
 # docker layer caching, thus avoid calling 'pip install' during every build
