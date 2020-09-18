@@ -168,7 +168,7 @@ def process_report(telegram_item, input_fields, image_data):
 
         # display result for each 100 user
         for i in range(0, len(results), 100):
-            send_result(results[i:i+100)
+            send_result(results[i:i+100])
 
     return True
 
