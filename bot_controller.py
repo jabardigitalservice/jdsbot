@@ -213,6 +213,14 @@ Yuk ditunggu buat checkin langsung di aplikasi digiteam ya {}. Terimakasih & Tet
 
     return bot.reply_message(telegram_item, msg)
 
+def action_ngobrol(telegram_item):
+    """ chat sebagai bot telegram """
+    pecah2 = telegram_item['message']['text'].split(' ', maxsplit=2)
+
+    return bot.run_command('/sendMessage', {
+        'chat_id': pecah2[1],
+        'text': pecah2[2],
+    })
 
 def process_telegram_input(item):
     """ process a single telegram update item
@@ -255,6 +263,7 @@ def process_telegram_input(item):
         '/listproject': action_listproject,
         '/reload_data': action_reload,
         '/cekabsensi': action_cekabsensi,
+        '/ngobrol' : action_ngobrol,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':
