@@ -12,6 +12,7 @@ load_dotenv()
 import models.groupware as groupware
 import models.bot as bot
 import models.user as user
+import models.db as db
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
@@ -168,8 +169,8 @@ def action_listproject(telegram_item):
 
 def action_reload(telegram_item):
     """ action for /reload_data command """
-    if user.db is not None:
-        user.db.close()
+    if db.CONNECTION is not None:
+        db.CONNECTION.close()
 
     try:
         setup()
