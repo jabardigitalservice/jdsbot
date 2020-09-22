@@ -88,6 +88,18 @@ def post_report_single(username, fields, image_data):
     print('ok')
     return True
 
+def reply_message(telegram_item, msg, is_direct_reply=False, is_markdown=False):
+    """ helper to send reply message """
+    data = {
+        'chat_id': telegram_item['message']['chat']['id'],
+        'text': msg,
+    }
+    if is_markdown:
+        data['parse_mode'] = 'MarkdownV2'
+    if is_direct_reply:
+        data['reply_to_message_id'] = telegram_item['message']['message_id']
+    return run_command('/sendMessage', data)
+
 def process_report(telegram_item, input_fields, image_data):
     """ process parsing result from our telegram processor"""
     print('>>> PROCESSING REPORT >>>')
@@ -146,11 +158,11 @@ def process_report(telegram_item, input_fields, image_data):
         # message_id=telegram_item['message']['message_id'],
         # content=telegram_item)
     def send_result(result):
-        run_command('/sendMessage', {
-            'chat_id': telegram_item['message']['chat']['id'],
-            'text': "Hasil:\n" + "\n".join(results),
-            'reply_to_message_id': telegram_item['message']['message_id']
-        })
+        reply_message(
+            telegram_item, 
+            "Hasil:\n" + "\n".join(results),
+            is_direct_reply=True
+        )
 
     if 'peserta' in fields:
         results = []
@@ -181,8 +193,4 @@ def process_error(telegram_item, e):
     """ process (and may be notify) error encountered """
     msg = str(e)
     print('error:', msg)
-    return run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': 'Error: '+msg,
-        'reply_to_message_id': telegram_item['message']['message_id']
-    })
+    return reply_message(telegram_item, 'Error: '+msg)

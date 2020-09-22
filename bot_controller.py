@@ -82,11 +82,7 @@ def action_about(telegram_item):
     """ action for /about command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
     msg = """Halo\! Aku adalah {}\. Aku ditugaskan untuk membantu melakukan rekap evidence gambar, nama proyek, dan nama task laporan harian otomatis ke aplikasi digiteam groupware\. Silahkan ketik di kolom chat `/help` untuk melihat command\-command yang bisa aku lakukan\! """.format(bot.BOT_NICKNAME)
-    return bot.run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': msg,
-        'parse_mode': 'MarkdownV2',
-    })
+    return bot.reply_message(telegram_item, msg, is_markdown=True)
 
 def action_whatsnew(telegram_item):
     """ action for /whatsnew command """
@@ -95,11 +91,7 @@ def action_whatsnew(telegram_item):
 \- Ada 1 command baru: `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
 \- Perubahan format response sehingga lebih jelas dan mudah dibaca
 """
-    return bot.run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': msg,
-        'parse_mode': 'MarkdownV2',
-    })
+    return bot.reply_message(telegram_item, msg, is_markdown=True)
 
 def action_help(telegram_item):
     """ action for /help command """
@@ -139,11 +131,7 @@ Peserta: rizkiadam01
 ```
 
     """
-    return bot.run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': msg,
-        'parse_mode': 'MarkdownV2',
-    })
+    return bot.reply_message(telegram_item, msg, is_markdown=True)
 
 def action_setalias(telegram_item):
     """ action for /whatsnew command """
@@ -163,11 +151,7 @@ def action_setalias(telegram_item):
 
     print('hasil setalias:', res, msg)
 
-    bot.run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': msg,
-        'reply_to_message_id': telegram_item['message']['message_id'],
-    })
+    return bot.reply_message(telegram_item, msg, is_direct_reply=True)
 
     return None if not res else res
 
@@ -180,11 +164,7 @@ def action_listproject(telegram_item):
     for item in key_list:
         msg += "\- `{}`\n".format(groupware.PROJECT_LIST[item]['originalName'])
 
-    return bot.run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': msg,
-        'parse_mode': 'MarkdownV2',
-    })
+    return bot.reply_message(telegram_item, msg, is_markdown=True)
 
 def action_reload(telegram_item):
     """ action for /reload_data command """
@@ -199,10 +179,7 @@ def action_reload(telegram_item):
         bot.process_error(telegram_item, e)
         return None
 
-    return bot.run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': 'reload success',
-    })
+    return bot.reply_message(telegram_item, 'reload success')
 
 def action_cekabsensi(telegram_item):
     """ action for /cekabsensi command """
@@ -234,10 +211,7 @@ Yuk ditunggu buat checkin langsung di aplikasi digiteam ya {}. Terimakasih & Tet
     attendance_msg,
     GROUPWARE_WEB_URL)
 
-    return bot.run_command('/sendMessage', {
-        'chat_id': telegram_item['message']['chat']['id'],
-        'text': msg,
-    })
+    return bot.reply_message(telegram_item, msg)
 
 
 def process_telegram_input(item):
