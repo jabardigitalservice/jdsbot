@@ -100,7 +100,7 @@ def reply_message(telegram_item, msg, is_direct_reply=False, is_markdown=False):
         data['reply_to_message_id'] = telegram_item['message']['message_id']
     return run_command('/sendMessage', data)
 
-def process_report(telegram_item, input_fields, image_data):
+def process_report(telegram_item, input_fields, image_data, peserta=None):
     """ process parsing result from our telegram processor"""
     print('>>> PROCESSING REPORT >>>')
     print('Fields:', input_fields, 'File type:', image_data['type'])
@@ -164,28 +164,34 @@ def process_report(telegram_item, input_fields, image_data):
             is_direct_reply=True
         )
 
-    if 'peserta' in fields:
-        results = []
-        for username in fields['peserta']:
-            status = ' | Berhasil '
-            bullet = EMOJI_SUCCESS
-            try:
-                result = post_report_single(username, fields, image_data)
-            except Exception as e:
-                print(e)
-                print(traceback.print_exc())
-                status = ' | Gagal - {}'.format(e)
-                bullet = EMOJI_FAILED
-            results.append("{} {} {}".format(bullet, username, status))
+    results = []
+    if peserta is None:
+        if 'peserta' in fields:
+            peserta = fields['peserta']
+        else:
+            process_error(telegram_item, 'tidak ada peserta yang disebutkan')
 
-            # display result for each 100 user
-            if len(results) >= 100:
-                send_result(results)
-                results = []
+    # processing all peserta
+    for username in peserta:
+        status = ' | Berhasil '
+        bullet = EMOJI_SUCCESS
+        try:
+            result = post_report_single(username, fields, image_data)
+        except Exception as e:
+            print(e)
+            print(traceback.print_exc())
+            status = ' | Gagal - {}'.format(e)
+            bullet = EMOJI_FAILED
+        results.append("{} {} {}".format(bullet, username, status))
 
-        # if there are still results left
-        if len(results) > 0:
+        # display result for each 100 user
+        if len(results) >= 100:
             send_result(results)
+            results = []
+
+    # if there are still results left
+    if len(results) > 0:
+        send_result(results)
 
     return True
 
