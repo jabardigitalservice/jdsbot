@@ -152,7 +152,7 @@ def action_setalias(telegram_item):
 
     print('hasil setalias:', res, msg)
 
-    return bot.reply_message(telegram_item, msg, is_direct_reply=True)
+    bot.reply_message(telegram_item, msg, is_direct_reply=True)
 
     return None if not res else res
 
