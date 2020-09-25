@@ -122,6 +122,11 @@ class TestBot(unittest.TestCase):
         del item['message']['reply_to_message']
         self.assertIsNone(bot.process_telegram_input(item))
 
+    def test_lapor_empty_peserta(self):
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/lapor Riset|unittest'
+        self.assertIsNone(bot.process_telegram_input(item))
+
     def test_lapor_reply_no_photo(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta:' + self.test_user
@@ -147,6 +152,11 @@ class TestBot(unittest.TestCase):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta: @random_alias'
         self.assertIsNotNone(bot.process_telegram_input(item))
+
+        # test set alias already exist
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/setalias random.user|@random_alias'
+        self.assertIsNone(bot.process_telegram_input(item))
 
     def test_set_alias_random_user(self):
         # set alias

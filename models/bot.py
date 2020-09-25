@@ -100,8 +100,14 @@ def reply_message(telegram_item, msg, is_direct_reply=False, is_markdown=False):
         data['reply_to_message_id'] = telegram_item['message']['message_id']
     return run_command('/sendMessage', data)
 
-def process_report(telegram_item, input_fields, image_data, peserta=None):
+def process_report(telegram_item, input_fields, image_data, save_history=True, peserta=None):
     """ process parsing result from our telegram processor"""
+    if save_history:
+        chat_history.insert(
+            chat_id=telegram_item['message']['chat']['id'],
+            message_id=telegram_item['message']['message_id'],
+            content=telegram_item)
+
     print('>>> PROCESSING REPORT >>>')
     print('Fields:', input_fields, 'File type:', image_data['type'])
 
@@ -142,9 +148,17 @@ def process_report(telegram_item, input_fields, image_data, peserta=None):
         headers={
         'Authorization': 'Bearer ' + user.get_user_token(os.getenv('TEST_USER')),
     })
+
     if req.status_code >= 300:
         errors.append("Groupware status code : {}\n\nMohon maaf, sedang ada ganguan pada sistem groupware. Silahkan coba lagi setelah beberapa saat".format(req.status_code))
 
+    if peserta is None:
+        if 'peserta' in fields:
+            peserta = fields['peserta']
+        else:
+            errors.append('tidak ada peserta yang disebutkan')
+
+    # validate accumulated errors
     if len(errors) > 0:
         msg = ''.join([
             "\n- " + str(e)
@@ -153,10 +167,6 @@ def process_report(telegram_item, input_fields, image_data, peserta=None):
         process_error(telegram_item, msg)
         return None
 
-    chat_history.insert(
-        chat_id=telegram_item['message']['chat']['id'],
-        message_id=telegram_item['message']['message_id'],
-        content=telegram_item)
     def send_result(result):
         reply_message(
             telegram_item,
@@ -164,25 +174,19 @@ def process_report(telegram_item, input_fields, image_data, peserta=None):
             is_direct_reply=True
         )
 
-    results = []
-    if peserta is None:
-        if 'peserta' in fields:
-            peserta = fields['peserta']
-        else:
-            process_error(telegram_item, 'tidak ada peserta yang disebutkan')
-
     # processing all peserta
+    results = []
     for username in peserta:
-        status = ' | Berhasil '
+        status = 'Berhasil '
         bullet = EMOJI_SUCCESS
         try:
-            result = post_report_single(username, fields, image_data)
+            post_report_single(username, fields, image_data)
         except Exception as e:
             print(e)
             print(traceback.print_exc())
-            status = ' | Gagal - {}'.format(e)
+            status = 'Gagal - {}'.format(e)
             bullet = EMOJI_FAILED
-        results.append("{} {} {}".format(bullet, username, status))
+        results.append("{} {} | {}".format(bullet, username, status))
 
         # display result for each 100 user
         if len(results) >= 100:
