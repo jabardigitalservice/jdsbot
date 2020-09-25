@@ -41,6 +41,9 @@ def get(chat_id=None, message_id=None):
         chat_id=chat_id, 
         message_id=message_id).fetchone()
 
+    if res is None: 
+        return None
+
     res = dict(res)
 
     if isinstance(res['content'],str):

@@ -174,6 +174,24 @@ class TestBot(unittest.TestCase):
         item['message']['text'] = '/cekabsensi'
         self.assertIsNotNone(bot.process_telegram_input(item))
 
+    def test_command_tambah_normal(self):
+        # first create normal laporan
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/lapor Riset|unittest\npeserta:' + self.test_user
+        res = bot.process_telegram_input(item)
+        self.assertIsNotNone(res)
+
+        # run actual tambah command
+        item_tambah = json.loads(json.dumps(self.default_data))
+        item_tambah['message']['text'] = '/tambah ' + self.test_user
+        item_tambah['message']['reply_to_message']['message_id'] = item['message']['message_id']
+        self.assertIsNotNone(bot.process_telegram_input(item_tambah))
+    def test_command_tambah_random_command(self):
+        item_tambah = json.loads(json.dumps(self.default_data))
+        item_tambah['message']['text'] = '/tambah ' + self.test_user
+        item_tambah['message']['reply_to_message']['message_id'] = 0
+        self.assertIsNone(bot.process_telegram_input(item_tambah))
+
     @unittest.skip(""" Untuk testing username not found sejauh ini belum ditemukan
     format testing yang baik karena dalam 1 kali submisi bisa ada bbrp user 
     sekaligus yang dilaporkan sehingga sulit ditentukan jika hanya sebagian user

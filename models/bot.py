@@ -100,7 +100,7 @@ def reply_message(telegram_item, msg, is_direct_reply=False, is_markdown=False):
         data['reply_to_message_id'] = telegram_item['message']['message_id']
     return run_command('/sendMessage', data)
 
-def process_report(telegram_item, input_fields, image_data, save_history=True, peserta=None):
+def process_report(telegram_item, input_fields, image_data, peserta=None, save_history=True):
     """ process parsing result from our telegram processor"""
     if save_history:
         chat_history.insert(
@@ -203,4 +203,4 @@ def process_error(telegram_item, e):
     """ process (and may be notify) error encountered """
     msg = str(e)
     print('error:', msg)
-    return reply_message(telegram_item, 'Error: '+msg)
+    return reply_message(telegram_item, 'Error: '+msg, is_direct_reply=True)
