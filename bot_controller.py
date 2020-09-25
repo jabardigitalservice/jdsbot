@@ -89,9 +89,9 @@ def action_about(telegram_item):
 def action_whatsnew(telegram_item):
     """ action for /whatsnew command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
-    msg = """Update per 10 September 2020:
-\- Ada 1 command baru: `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
-\- Perubahan format response sehingga lebih jelas dan mudah dibaca
+    msg = """Update per 25 September 2020:
+\- Beberapa perubahan pesan error untuk peserta yang kosong dan salah format
+\- Command baru `/tambah` untuk menambahkan peserta di laporan yang sudah disubmit
 """
     return bot.reply_message(telegram_item, msg, is_markdown=True)
 
@@ -102,6 +102,7 @@ def action_help(telegram_item):
 \- `/help` : menampilkan command\-command cara untuk menggunakan bot ini
 \- `/about` : menampilkan penjelasan tentang bot ini
 \- `/lapor` : Mengirimkan laporan ke aplikasi digiteam groupware JDS
+\- `/tambah` : Menambahkan user yang mungkin belum tersebut di laporan yang sudah tersubmit dengan command `/lapor`
 \- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
 \- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
 \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
