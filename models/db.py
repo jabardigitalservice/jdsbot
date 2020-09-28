@@ -26,15 +26,21 @@ USER_TABLE_DEFINITION = sqlalchemy.Table(
 ENGINE=None
 CONNECTION=None
 
-def get_engine():
+def get_engine(new=False):
     global ENGINE
+
+    if new:
+        return sqlalchemy.create_engine(DATABASE_URL)
 
     if ENGINE is None:
         ENGINE = sqlalchemy.create_engine(DATABASE_URL)
     return ENGINE
 
-def get_conn():
+def get_conn(new=False):
     global CONNECTION
+
+    if new:
+        return get_engine(new=True).connect()
 
     if CONNECTION is None or CONNECTION.closed:
         CONNECTION = get_engine().connect()
@@ -42,4 +48,22 @@ def get_conn():
 
 def db_exec(*args):
     return get_conn().execute(*args)
+
+def execute(raw_query, args=None, once=False):
+    """ run sql command with slalchemy features
+    Params
+    ------
+    once: bool
+        execute with on-time connection 
+    """
+    query = sqlalchemy.text(raw_query)
+
+    conn = get_conn(new=once)
+    if args is not None:
+        return conn.execute(query, **args)
+    else:
+        return conn.execute(query)
+
+    conn.commit()
+    conn.close()
 

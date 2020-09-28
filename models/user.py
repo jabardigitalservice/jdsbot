@@ -48,25 +48,27 @@ def set_alias(username, new_alias):
     if new_alias in ALIAS:
         return (False, 'Alias already exists')
 
-    query_find_user = sqlalchemy.text("""
+    query_find_user = """
         SELECT * 
         FROM users 
-        WHERE username = :username""")
-    res_find_user = db.get_conn().execute(
-        query_find_user, 
-        username=username).fetchall()
+        WHERE username = :username"""
+    res_find_user = db.execute(
+        query_find_user,  
+        {'username':username},
+        once=True).fetchall()
     print('res_find_user', res_find_user)
     if len(res_find_user) < 1:
         return (False, 'User not found')
 
-    query_update = sqlalchemy.text("""
+    query_update = """
         UPDATE users 
         SET alias = :alias 
-        WHERE username = :username""")
-    res = db.get_conn().execute(
-        query_update,
-        alias=new_alias, 
-        username=username)
+        WHERE username = :username"""
+    res = db.execute(
+        query_update, {
+            'alias':new_alias, 
+            'username':username
+        }, once=True)
 
     load_user_data()
     return (True, 'success')

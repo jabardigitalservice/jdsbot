@@ -19,27 +19,30 @@ def insert(chat_id, message_id, content):
     insert_content = content \
         if isinstance(content,str) else \
         json.dumps(content)
-    query_insert = sqlalchemy.text("""
+    query_insert = """
         INSERT INTO chat_history 
         (chat_id, message_id, content) 
-        VALUES (:chat_id, :message_id, :content)""")
-    res = db.get_conn().execute(
-        query_insert,
-        chat_id=chat_id, 
-        message_id=message_id,
-        content=insert_content)
+        VALUES (:chat_id, :message_id, :content)"""
+    res = db.execute(
+        query_insert, {
+            'chat_id':chat_id, 
+            'message_id':message_id,
+            'content':insert_content
+        }, once=True)
 
     return res
 
 def get(chat_id=None, message_id=None):
-    query_select = sqlalchemy.text("""
+    query_select = """
         SELECT * FROM chat_history 
         WHERE chat_id = :chat_id AND
-        message_id = :message_id""")
-    res = db.get_conn().execute(
-        query_select,
-        chat_id=chat_id, 
-        message_id=message_id).fetchone()
+        message_id = :message_id"""
+    res = db.execute(
+        query_select, {
+            'chat_id':chat_id, 
+            'message_id':message_id,
+        }, 
+        once=True).fetchone()
 
     if res is None: 
         return None
