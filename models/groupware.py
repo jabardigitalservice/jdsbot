@@ -12,7 +12,7 @@ load_dotenv(dotenv_path=env_path)
 ROOT_API_URL = os.getenv('ROOT_API_URL')
 LOGBOOK_API_URL = ROOT_API_URL+'/logbook/'
 LOGIN_API_URL = ROOT_API_URL+'/auth/login/'
-PROJECT_LIST_API_URL = ROOT_API_URL+'/project/?limit=100&pageSize=100'
+PROJECT_LIST_API_URL = ROOT_API_URL+'/project/?limit=200&pageSize=200'
 
 TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
 IS_DEBUG=(os.getenv('IS_DEBUG', 'false').lower() == 'true')
@@ -66,7 +66,7 @@ def get_attendance(auth_token, date=None):
 
     api_url = ROOT_API_URL+'/attendance/?limit=200&pageSize=200&date={}'.format(date)
     req = requests.get(
-        url=api_url, 
+        url=api_url,
         headers=headers
     )
 
