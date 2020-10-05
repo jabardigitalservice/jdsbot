@@ -43,7 +43,7 @@ def action_checkin(item, peserta=None):
 
     data = {
         'date': idDateFormat,
-        'location': first_params[2].strip(),
+        'location': first_params[2].strip().upper(),
         'message': first_params[1].strip().upper(),
         'note': notes,
     }
