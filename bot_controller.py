@@ -14,6 +14,7 @@ import models.bot as bot
 import models.user as user
 import models.db as db
 import models.chat_history as chat_history
+import controllers.checkin as checkin
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
@@ -26,7 +27,7 @@ TIMEZONE = timezone(timedelta(hours=7))
 def setup():
     """ iniate bot_controller """
     user.load_user_data()
-
+    os.environ['TZ'] = 'Asia/Jakarta'
     auth_token = user.get_user_token(os.getenv('TEST_USER'))
     groupware.load_project_list(auth_token)
 
@@ -292,6 +293,7 @@ def process_telegram_input(item):
         '/cekabsensi': action_cekabsensi,
         '/ngobrol' : action_ngobrol,
         '/tambah' : action_tambah,
+        '/checkin' : checkin.action_checkin,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':
