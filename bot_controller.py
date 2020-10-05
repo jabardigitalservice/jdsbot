@@ -108,6 +108,7 @@ def action_help(telegram_item):
 \- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
 \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
 \- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
+\- `/checkin` : Untuk melakukan absensi
 
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
@@ -116,6 +117,11 @@ Cara menggunakan command `/lapor`:
 ```
 /lapor <nama_project_di_groupware> | <nama_kegiatan>
 Peserta: <user_groupware_1> , <user_groupware_2>
+```
+
+Cara menggunakan command `/checkin`:
+```
+/checkin <username atau alias> | <jenis kehadiran> | <tipe> | <keterangan optional>
 ```
 
 Keterangan Opsi\-Opsi:
