@@ -121,7 +121,7 @@ Peserta: <user_groupware_1> , <user_groupware_2>
 
 Cara menggunakan command `/checkin`:
 ```
-/checkin <username atau alias> | <jenis kehadiran> | <tipe> | <keterangan optional>
+/checkin <username atau alias> | <jenis kehadiran> | <keterangan optional>
 ```
 
 Keterangan Opsi\-Opsi:
