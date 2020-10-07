@@ -39,7 +39,11 @@ def load_user_data():
 
     USER_LIST = get_user_list()
     PASSWORD = { row[0]:row[1] for row in USER_LIST }
-    ALIAS = { row[2].lower():row[0] for row in USER_LIST }
+    ALIAS = { 
+        row[2].lower():row[0] 
+        for row in USER_LIST 
+        if row[2] is not None and len(row[2]) > 0
+    }
 
 def set_alias(username, new_alias):
     global ALIAS
