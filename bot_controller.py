@@ -122,6 +122,8 @@ Cara menggunakan command `/checkin`:
 ```
 /checkin <username atau alias> | <jenis kehadiran> | <keterangan optional>
 ```
+Catatan
+1\. Untuk jenis kehadiran hanya bisa hadir saja,
 
 Keterangan Opsi\-Opsi:
 \- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
