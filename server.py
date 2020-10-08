@@ -40,4 +40,3 @@ async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token
     background_tasks.add_task(bot_controller.action_cekabsensi, data)
     return 'ok'
 
-
