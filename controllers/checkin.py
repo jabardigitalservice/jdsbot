@@ -25,6 +25,10 @@ def action_checkin(item, peserta=None):
     first_params = first_params[first_params.find(' ')+1 :] # start from after first ' '
     first_params = first_params.split('|') # split with '|'
     
+    if len(first_params) < 3 :
+        bot.process_error(item, 'Wrong format')
+        return
+
     try:
         notes = first_params[3].strip()
     except IndexError:
