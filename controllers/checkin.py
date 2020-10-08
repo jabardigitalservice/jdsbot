@@ -14,11 +14,9 @@ ATTENDANCE_API_URL = ROOT_API_URL+'/attendance/checkin/'
 
 def action_checkin(item, peserta=None):
     # define date format output i am get hours and minute
-    fmt = '%Y-%m-%d %H:%M:%i'
-    # define indonesia timezone default asia/jakarta
-    jakarta = timezone('Asia/Jakarta')
+    fmt = '%Y-%m-%d %H:%M:%I'
     # localized datetime now
-    loc_dt = datetime.now(jakarta)
+    loc_dt = datetime.now()
 
     idDateFormat = loc_dt.strftime(fmt)
 
@@ -37,8 +35,6 @@ def action_checkin(item, peserta=None):
     try:
         notes = first_params[3].strip()
     except IndexError:
-        message = None
-        location = None
         notes = ""
 
     data = {
@@ -60,13 +56,8 @@ def action_checkin(item, peserta=None):
     
     msg = first_params[0].strip()+" Berhasil Melakukan absensi "+bot.EMOJI_SUCCESS
 
-    errors = []
     if req.status_code >= 300:
-        errors.append("Groupware status code : {}\n\nMohon maaf, sedang ada ganguan pada sistem groupware. Silahkan coba lagi setelah beberapa saat".format(req.status_code))
-        msg = ''.join([
-            "\n- " + str(e)
-            for e in errors
-        ])
-        return bot.process_error(item, msg)
+        errors = "Groupware status code : {} \n\nMohon maaf, sedang ada ganguan pada sistem groupware. Silahkan coba lagi setelah beberapa saat".format(req.status_code)
+        return bot.process_error(item, errors)
     else:
         return bot.reply_message(item, msg)
