@@ -2,7 +2,7 @@ from datetime import datetime
 from pytz import timezone
 from dotenv import load_dotenv
 from pathlib import Path
-import os, requests
+import os, requests, json
 import models.bot as bot
 import models.groupware as groupware
 import models.user as user
@@ -48,9 +48,9 @@ def action_checkin(item, peserta=None):
     )
     
     msg = first_params[0].strip()+" Berhasil Melakukan absensi "+bot.EMOJI_SUCCESS
-
+    responseMessage = json.loads(req.text)
     if req.status_code >= 300:
-        errors = "Groupware status code : {} \n\nMohon maaf, sedang ada ganguan pada sistem groupware. Silahkan coba lagi setelah beberapa saat".format(req.status_code)
+        errors = "Groupware status code : {} \n\nMohon maaf, ".format(req.status_code) + first_params[0].strip() + " " + responseMessage["message"]
         return bot.process_error(item, errors)
     else:
         return bot.reply_message(item, msg)
