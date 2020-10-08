@@ -10,7 +10,7 @@ env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
 ROOT_API_URL = os.getenv('ROOT_API_URL')
-ATTENDANCE_API_URL = ROOT_API_URL+'/attendance/checkin/'
+CHECKIN_URL = ROOT_API_URL+'/attendance/checkin/'
 
 def action_checkin(item, peserta=None):
     """ action for /checkin command """
@@ -25,36 +25,41 @@ def action_checkin(item, peserta=None):
     first_params = first_params[first_params.find(' ')+1 :] # start from after first ' '
     first_params = first_params.split('|') # split with '|'
     
-    if len(first_params) < 3 :
+    if len(first_params) != 2 :
         bot.process_error(item, 'Wrong format')
         return
 
-    try:
-        notes = first_params[3].strip()
-    except IndexError:
-        notes = ""
+    dateNow = datetime.now().strftime('%Y-%m-%d')
+    HoursNow = datetime.now().strftime('%H')
+    MinuteNow = datetime.now().strftime('%M')
+    SecondNow = datetime.now().strftime('%I')
+    formatHours = "T%s:%s:%s.000Z" % (HoursNow, MinuteNow, SecondNow)
+    username = first_params[0].strip()
+    location = first_params[1].strip().upper()
 
     data = {
-        'date': datetime.now().strftime('%Y-%m-%d'),
-        'location': first_params[1].strip().upper(),
-        'message': first_params[2].strip().upper(),
-        'note': notes,
+        'date': dateNow,
+        'location': location,
+        'message': "HADIR",
+        'note': "",
     }
 
-    data['date'] += groupware.TIMESTAMP_TRAIL_FORMAT
-    getToken = user.get_user_token(first_params[0].strip())
+    data['date'] += formatHours
+    getToken = user.get_user_token(username)
+
     req = requests.post(
-        url=ATTENDANCE_API_URL,
+        url=CHECKIN_URL,
         headers={
             'Authorization': 'Bearer ' + getToken,
         },
         data=data
     )
-    
-    msg = first_params[0].strip()+" Berhasil Melakukan absensi "+bot.EMOJI_SUCCESS
+
+    msg = "%s | HADIR %s Pukul %s %s %s" % (username, dateNow ,HoursNow + ":"+MinuteNow, bot.EMOJI_SUCCESS, location)
     responseMessage = json.loads(req.text)
+    
     if req.status_code >= 300:
-        errors = "Groupware status code : {} \n\nMohon maaf, ".format(req.status_code) + first_params[0].strip() + " " + responseMessage["message"]
+        errors = "%s Checkin Gagal | %s %s " % (username, responseMessage["message"], bot.EMOJI_FAILED)
         return bot.process_error(item, errors)
     else:
         return bot.reply_message(item, msg)
