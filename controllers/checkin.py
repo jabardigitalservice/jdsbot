@@ -13,13 +13,6 @@ ROOT_API_URL = os.getenv('ROOT_API_URL')
 ATTENDANCE_API_URL = ROOT_API_URL+'/attendance/checkin/'
 
 def action_checkin(item, peserta=None):
-    # define date format output i am get hours and minute
-    fmt = '%Y-%m-%d %H:%M:%I'
-    # localized datetime now
-    loc_dt = datetime.now()
-
-    idDateFormat = loc_dt.strftime(fmt)
-
     """ action for /checkin command """
     # parse input
     if 'caption' in item['message']:
@@ -38,7 +31,7 @@ def action_checkin(item, peserta=None):
         notes = ""
 
     data = {
-        'date': idDateFormat,
+        'date': datetime.now().strftime('%Y-%m-%d'),
         'location': first_params[1].strip().upper(),
         'message': first_params[2].strip().upper(),
         'note': notes,
