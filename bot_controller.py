@@ -15,6 +15,7 @@ import models.user as user
 import models.db as db
 import models.chat_history as chat_history
 import controllers.checkin as checkin
+import controllers.checkout as checkout
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
@@ -124,6 +125,11 @@ Cara menggunakan command `/checkin`:
 ```
 Catatan
 1\. Untuk jenis kehadiran hanya bisa hadir saja,
+
+Cara menggunakan command `/checkout`:
+```
+/checkout <username atau alias>
+```
 
 Keterangan Opsi\-Opsi:
 \- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
@@ -301,6 +307,7 @@ def process_telegram_input(item):
         '/ngobrol' : action_ngobrol,
         '/tambah' : action_tambah,
         '/checkin' : checkin.action_checkin,
+        '/checkout' : checkout.action_checkout,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':
