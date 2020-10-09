@@ -14,6 +14,7 @@ import models.bot as bot
 import models.user as user
 import models.db as db
 import models.chat_history as chat_history
+import controllers.checkin as checkin
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
@@ -26,7 +27,6 @@ TIMEZONE = timezone(timedelta(hours=7))
 def setup():
     """ iniate bot_controller """
     user.load_user_data()
-
     auth_token = user.get_user_token(os.getenv('TEST_USER'))
     groupware.load_project_list(auth_token)
 
@@ -107,6 +107,7 @@ def action_help(telegram_item):
 \- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
 \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
 \- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
+\- `/checkin` : Untuk melakukan absensi
 
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
@@ -116,6 +117,13 @@ Cara menggunakan command `/lapor`:
 /lapor <nama_project_di_groupware> | <nama_kegiatan>
 Peserta: <user_groupware_1> , <user_groupware_2>
 ```
+
+Cara menggunakan command `/checkin`:
+```
+/checkin <username atau alias> | <jenis kehadiran> | <keterangan optional>
+```
+Catatan
+1\. Untuk jenis kehadiran hanya bisa hadir saja,
 
 Keterangan Opsi\-Opsi:
 \- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
@@ -292,6 +300,7 @@ def process_telegram_input(item):
         '/cekabsensi': action_cekabsensi,
         '/ngobrol' : action_ngobrol,
         '/tambah' : action_tambah,
+        '/checkin' : checkin.action_checkin,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':

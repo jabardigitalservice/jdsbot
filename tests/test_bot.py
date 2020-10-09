@@ -61,6 +61,15 @@ class TestBot(unittest.TestCase):
             }
         }
 
+        # insert username to user table
+        query_insert = sqlalchemy.text("""
+            INSERT INTO 
+            users(username, password) 
+            VALUES(:username, :password)""")
+        db.get_conn().execute(query_insert,
+            username=self.test_user, 
+            password=self.test_user)
+
         bot.setup()
 
     @classmethod
@@ -134,15 +143,6 @@ class TestBot(unittest.TestCase):
         self.assertIsNone(bot.process_telegram_input(item))
 
     def test_set_alias_normal(self):
-        # insert username to user table
-        query_insert = sqlalchemy.text("""
-            INSERT INTO 
-            users(username, password) 
-            VALUES(:username, :password)""")
-        db.get_conn().execute(query_insert,
-            username=self.test_user, 
-            password=self.test_user)
-
         # set alias
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias {}|@random_alias'.format(self.test_user)
@@ -157,6 +157,17 @@ class TestBot(unittest.TestCase):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias random.user|@random_alias'
         self.assertIsNone(bot.process_telegram_input(item))
+
+    def test_set_alias_normal_case_insensitive(self):
+        # set alias
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/setalias {}|@random_alias_2'.format(self.test_user)
+        self.assertIsNotNone(bot.process_telegram_input(item))
+
+        # test /lapor with alias
+        item = json.loads(json.dumps(self.default_data))
+        item['message']['text'] = '/lapor Riset|unittest\npeserta: @RANDOM_ALIAS_2'
+        self.assertIsNotNone(bot.process_telegram_input(item))
 
     def test_set_alias_random_user(self):
         # set alias
