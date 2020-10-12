@@ -24,27 +24,28 @@ def action_checkin(item, peserta=None):
     first_params = lines[0]
     first_params = first_params[first_params.find(' ')+1 :] # start from after first ' '
     first_params = first_params.split('|') # split with '|'
-    
+
     if len(first_params) != 2 :
         bot.process_error(item, 'Wrong format')
         return
 
-    dateNow = datetime.now().strftime('%Y-%m-%d')
-    HoursNow = datetime.now().strftime('%H')
-    MinuteNow = datetime.now().strftime('%M')
-    SecondNow = datetime.now().strftime('%I')
-    formatHours = "T%s:%s:%s.000Z" % (HoursNow, MinuteNow, SecondNow)
+    current_time = datetime.now(timezone('Asia/Jakarta'))
+    current_time_utc = current_time.astimezone(timezone('UTC'))
+
+    checkinDateTimeFormat = current_time_utc.strftime('%Y-%m-%dT%H:%M:%I.000Z')
+    dateNow   = current_time.strftime('%Y-%m-%d')
+    hourMinuteNow = current_time.strftime('%H:%M')
+
     username = first_params[0].strip()
     location = first_params[1].strip().upper()
 
     data = {
-        'date': dateNow,
+        'date': checkinDateTimeFormat,
         'location': location,
         'message': "HADIR",
         'note': "",
     }
 
-    data['date'] += formatHours
     getToken = user.get_user_token(username)
 
     req = requests.post(
@@ -55,9 +56,9 @@ def action_checkin(item, peserta=None):
         data=data
     )
 
-    msg = "%s | HADIR %s Pukul %s %s %s" % (username, dateNow ,HoursNow + ":"+MinuteNow, bot.EMOJI_SUCCESS, location)
+    msg = "%s | HADIR %s Pukul %s %s %s" % (username, dateNow , hourMinuteNow, bot.EMOJI_SUCCESS, location)
     responseMessage = json.loads(req.text)
-    
+
     if req.status_code >= 300:
         errors = "%s Checkin Gagal | %s %s " % (username, responseMessage["message"], bot.EMOJI_FAILED)
         return bot.process_error(item, errors)
