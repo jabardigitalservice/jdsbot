@@ -109,6 +109,7 @@ def action_help(telegram_item):
 \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
 \- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
 \- `/checkin` : Untuk melakukan absensi
+\- `/checkout` : Untuk melakukan checkout absensi
 
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
@@ -121,10 +122,10 @@ Peserta: <user_groupware_1> , <user_groupware_2>
 
 Cara menggunakan command `/checkin`:
 ```
-/checkin <username atau alias> | <jenis kehadiran> | <keterangan optional>
+/checkin <username atau alias> | <jenis kehadiran>
 ```
 Catatan
-1\. Untuk jenis kehadiran hanya bisa hadir saja,
+1\. Untuk jenis kehadiran hanya bisa hadir saja
 
 Cara menggunakan command `/checkout`:
 ```

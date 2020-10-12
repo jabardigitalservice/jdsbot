@@ -60,7 +60,7 @@ def action_checkin(item, peserta=None):
     responseMessage = json.loads(req.text)
 
     if req.status_code >= 300:
-        errors = "%s Checkin Gagal | %s %s " % (username, responseMessage["message"], bot.EMOJI_FAILED)
+        errors = "%s | Checkin Gagal | %s %s " % (username, responseMessage["message"], bot.EMOJI_FAILED)
         return bot.process_error(item, errors)
     else:
         return bot.reply_message(item, msg)
