@@ -1,5 +1,4 @@
 from datetime import datetime
-from pytz import timezone
 from dotenv import load_dotenv
 from pathlib import Path
 import os, requests, json
@@ -32,19 +31,18 @@ def action_checkin(item, peserta=None):
     dateNow = datetime.now().strftime('%Y-%m-%d')
     HoursNow = datetime.now().strftime('%H')
     MinuteNow = datetime.now().strftime('%M')
-    SecondNow = datetime.now().strftime('%I')
-    formatHours = "T%s:%s:%s.000Z" % (HoursNow, MinuteNow, SecondNow)
+    SecondNow = datetime.now().strftime('%S')
+    formatDate = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     username = first_params[0].strip()
     location = first_params[1].strip().upper()
 
     data = {
-        'date': dateNow,
+        'date': formatDate,
         'location': location,
         'message': "HADIR",
         'note': "",
     }
 
-    data['date'] += formatHours
     getToken = user.get_user_token(username)
 
     req = requests.post(
