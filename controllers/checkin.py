@@ -39,28 +39,36 @@ def action_checkin(item, peserta=None):
     username = first_params[0].strip()
     location = first_params[1].strip().upper()
 
-    data = {
-        'date': checkinDateTimeFormat,
-        'location': location,
-        'message': "HADIR",
-        'note': "",
-    }
+    locationAvailable = ['WFH','WFO','PERJADIN']
 
-    getToken = user.get_user_token(username)
+    if location in locationAvailable:
 
-    req = requests.post(
-        url=CHECKIN_URL,
-        headers={
-            'Authorization': 'Bearer ' + getToken,
-        },
-        data=data
-    )
+        data = {
+            'date': checkinDateTimeFormat,
+            'location': location,
+            'message': "HADIR",
+            'note': "",
+        }
 
-    msg = "%s | HADIR %s Pukul %s %s %s" % (username, dateNow , hourMinuteNow, bot.EMOJI_SUCCESS, location)
-    responseMessage = json.loads(req.text)
+        getToken = user.get_user_token(username)
 
-    if req.status_code >= 300:
-        errors = "%s Checkin Gagal | %s %s " % (username, responseMessage["message"], bot.EMOJI_FAILED)
-        return bot.process_error(item, errors)
+        req = requests.post(
+            url=CHECKIN_URL,
+            headers={
+                'Authorization': 'Bearer ' + getToken,
+            },
+            data=data
+        )
+
+        msg = "%s | HADIR %s Pukul %s %s %s" % (username, dateNow , hourMinuteNow, bot.EMOJI_SUCCESS, location)
+        responseMessage = json.loads(req.text)
+
+        if req.status_code >= 300:
+            errors = "%s | Checkin Gagal | %s %s " % (username, responseMessage["message"], bot.EMOJI_FAILED)
+            return bot.process_error(item, errors)
+        else:
+            return bot.reply_message(item, msg)
+    
     else:
+        msg = "Checkin gagal | Jenis kehadiran anda tidak sesuai"
         return bot.reply_message(item, msg)

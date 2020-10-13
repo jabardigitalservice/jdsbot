@@ -15,6 +15,7 @@ import models.user as user
 import models.db as db
 import models.chat_history as chat_history
 import controllers.checkin as checkin
+import controllers.checkout as checkout
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
@@ -108,6 +109,7 @@ def action_help(telegram_item):
 \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
 \- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
 \- `/checkin` : Untuk melakukan absensi
+\- `/checkout` : Untuk melakukan checkout absensi
 
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
@@ -120,10 +122,15 @@ Peserta: <user_groupware_1> , <user_groupware_2>
 
 Cara menggunakan command `/checkin`:
 ```
-/checkin <username atau alias> | <jenis kehadiran> | <keterangan optional>
+/checkin <username atau alias> | <jenis kehadiran>
 ```
 Catatan
-1\. Untuk jenis kehadiran hanya bisa hadir saja,
+1\. Untuk jenis kehadiran hanya bisa hadir saja
+
+Cara menggunakan command `/checkout`:
+```
+/checkout <username atau alias>
+```
 
 Keterangan Opsi\-Opsi:
 \- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
@@ -301,6 +308,7 @@ def process_telegram_input(item):
         '/ngobrol' : action_ngobrol,
         '/tambah' : action_tambah,
         '/checkin' : checkin.action_checkin,
+        '/checkout' : checkout.action_checkout,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':
