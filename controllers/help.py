@@ -1,25 +1,17 @@
 import models.bot as bot
 
-def action_help(telegram_item):
-    """ action for /help command """
-    msg = {}
-    msg['default'] = """Command\-command yang tersedia:
+msg = {}
+msg['help'] = "menampilkan command\-command cara untuk menggunakan bot ini"
+msg['about'] = "menampilkan penjelasan tentang bot ini"
+msg['tambah'] = "Menambahkan user yang mungkin belum tersebut di laporan yang sudah tersubmit dengan command `/lapor`"
+msg['whatsnew'] = "mberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan"
+msg['setalias'] = "Mengubah alias username telegram untuk salah satu username DigiTeam"
+msg['listproject'] = "Menampilkan list semua project yang ada di DigiTeam saat ini"
+msg['cekabsensi'] = "Menampilkan daftar user yang belum check\-in di groupware hari ini"
 
-\- `/help` : menampilkan command\-command cara untuk menggunakan bot ini
-\- `/about` : menampilkan penjelasan tentang bot ini
-\- `/lapor` : Mengirimkan laporan ke aplikasi digiteam groupware JDS
-\- `/tambah` : Menambahkan user yang mungkin belum tersebut di laporan yang sudah tersubmit dengan command `/lapor`
-\- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
-\- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
-\- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
-\- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
-\- `/checkin` : Untuk melakukan absensi
-\- `/checkout` : Untuk melakukan checkout absensi
+msg['lapor'] = """
+Mengirimkan laporan ke aplikasi digiteam groupware JDS"
 
-Untuk mendapatkan bantuan detail dari command\-command di atas, silahkan gunakan command `/help <nama_command` \. contoh: `/help lapor`
-"""
-
-    msg['lapor'] = """
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
 2\. Reply gambar tersebut dengan format command seperti berikut :
@@ -44,9 +36,11 @@ Contoh Reply command:
 /lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
 Peserta: rizkiadam01
 ```
-    """
+"""
 
-    msg['checkin'] = """
+msg['checkin'] = """
+Untuk melakukan checkin absensi
+
 Cara menggunakan command `/checkin`:
 ```
 /checkin <username atau alias> | <jenis kehadiran>
@@ -55,42 +49,60 @@ Catatan
 1\. Untuk jenis kehadiran hanya bisa hadir saja
 """
 
-    msg['checkout'] = """
+msg['checkout'] = """
+Untuk melakukan checkout absensi
+
 Cara menggunakan command `/checkout`:
 ```
 /checkout <username atau alias>
 ```
 """
 
+def action_help(telegram_item):
+    """ action for /help command """
+
     input_words = telegram_item['message']['text'].split(' ')
     pre_msg = ''
 
-    if len(input_words) < 2 :
-        command = 'default'
-    else:
+    if len(input_words) > 1 and command in msg:
         command = input_words[1].lower()
+        return bot.reply_message(
+            telegram_item, 
+            pre_msg + msg[command], 
+            is_markdown=True, 
+            is_direct_reply=True, 
+            custom_data=keyboard_data
+        )
+    else:
+        keyboard_data =  {
+            'reply_markup' : {
+                'inline_keyboard': [
+                    [ { 'text': cmd, 'callback_data':'help|'+cmd }]
+                    for cmd in msg
+                ],
+            },
+        }
+        return bot.reply_message(
+            telegram_item, 
+            "Silahkan pilih salah satu tombol di bawah:\n", 
+            custom_data=keyboard_data
+        )
 
-    if command not in msg:
-        command = 'default'
-        pre_msg = "Command tidak ditemukan\. "
+def inline_callback_handler(item):
+    input_words = item['callback_query']['data'].split('|')
 
-    keyboard_data = None if command != 'default' else {
-        'reply_markup' : {
-            'keyboard': [
-                [ { 'text': '/help ' + cmd }]
-                for cmd in msg
-                if cmd != 'default'
-            ],
-            'one_time_keyboard' : True,
-            'selective': False,
-            'resize_keyboard': True,
-        },
-    }
+    bot.run_command('/editMessageText', {
+        'chat_id': item['callback_query']['message']['chat']['id'],
+        'message_id': item['callback_query']['message']['message_id'],
+        'parse_mode': 'MarkdownV2',
+        'text': "Command `/{}`: \n{}".format(
+            input_words[1], 
+            msg[input_words[1]]
+        ),
+    })
 
-    return bot.reply_message(
-        telegram_item, 
-        pre_msg + msg[command], 
-        is_markdown=True, 
-        is_direct_reply=True, 
-        custom_data=keyboard_data
-    )
+    bot.run_command('/answerCallbackQuery', {
+        'callback_query_id': item['callback_query']['id'],
+    })
+
+    return True

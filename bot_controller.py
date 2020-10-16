@@ -16,7 +16,7 @@ import models.db as db
 import models.chat_history as chat_history
 import controllers.checkin as checkin
 import controllers.checkout as checkout
-from controllers.help import action_help
+import controllers.help as help_controller
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
@@ -217,6 +217,18 @@ def process_telegram_input(item):
     mixed:
         None is ignoring message
     """
+    if 'callback_query' in item:
+        input_words = item['callback_query']['data'].split('|')
+        
+        callback_handler = {
+            'help' : help_controller.inline_callback_handler,
+        }
+
+        if len(input_words) > 1 and input_words[0] in callback_handler: 
+            return callback_handler[input_words[0]](item)
+        else:
+            return None
+
     if 'message' not in item :
         print('update contain no message, ignoring...')
         return None
@@ -245,7 +257,7 @@ def process_telegram_input(item):
         '/lapor' : action_lapor,
         '/start' : action_about,
         '/about' : action_about,
-        '/help' : action_help,
+        '/help' : help_controller.action_help,
         '/whatsnew' : action_whatsnew,
         '/setalias' : action_setalias,
         '/listproject': action_listproject,
