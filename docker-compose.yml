@@ -2,15 +2,13 @@ version: '3'
 
 services:
   api:
-    build:
-      context: .
-    networks:
-      - internal
+    build: .
     env_file:
       - .env
     ports:
       - 8000:80
+    volumes:
+      - .:/app
+    # command for local development server
+    command: uvicorn server:app --port 80 --host 0.0.0.0 --reload
 
-networks:
-  internal:
-    driver: bridge
