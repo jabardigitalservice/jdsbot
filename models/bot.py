@@ -29,7 +29,7 @@ ROOT_BOT_FILE_URL = 'https://api.telegram.org/file/bot{}'.format(TELEGRAM_TOKEN)
 def run_command(path, data=None):
     """ run a single telegram API command """
     global ROOT_BOT_URL
-    req = requests.get(url=ROOT_BOT_URL+path, data=data)
+    req = requests.get(url=ROOT_BOT_URL+path, json=data)
     if req.status_code < 300:
         return req.json()
     else:
