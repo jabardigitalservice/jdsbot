@@ -88,7 +88,7 @@ def post_report_single(username, fields, image_data):
     print('ok')
     return True
 
-def reply_message(telegram_item, msg, is_direct_reply=False, is_markdown=False):
+def reply_message(telegram_item, msg, is_direct_reply=False, is_markdown=False, custom_data=None):
     """ helper to send reply message """
     data = {
         'chat_id': telegram_item['message']['chat']['id'],
@@ -98,6 +98,9 @@ def reply_message(telegram_item, msg, is_direct_reply=False, is_markdown=False):
         data['parse_mode'] = 'MarkdownV2'
     if is_direct_reply:
         data['reply_to_message_id'] = telegram_item['message']['message_id']
+    if custom_data is not None:
+        data = { **data, **custom_data }
+
     return run_command('/sendMessage', data)
 
 def process_report(telegram_item, input_fields, image_data, peserta=None, save_history=True):

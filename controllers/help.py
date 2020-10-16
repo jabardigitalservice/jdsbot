@@ -68,10 +68,29 @@ Cara menggunakan command `/checkout`:
     if len(input_words) < 2 :
         command = 'default'
     else:
-        command = input_words[1]
+        command = input_words[1].lower()
 
     if command not in msg:
         command = 'default'
         pre_msg = "Command tidak ditemukan\. "
 
-    return bot.reply_message(telegram_item, pre_msg + msg[command], is_markdown=True)
+    keyboard_data = None if command != 'default' else {
+        'reply_markup' : {
+            'keyboard': [
+                [ { 'text': '/help ' + cmd }]
+                for cmd in msg
+                if cmd != 'default'
+            ],
+            'one_time_keyboard' : True,
+            'selective': False,
+            'resize_keyboard': True,
+        },
+    }
+
+    return bot.reply_message(
+        telegram_item, 
+        pre_msg + msg[command], 
+        is_markdown=True, 
+        is_direct_reply=True, 
+        custom_data=keyboard_data
+    )
