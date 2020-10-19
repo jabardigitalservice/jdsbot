@@ -62,29 +62,37 @@ def action_help(telegram_item):
     """ action for /help command """
 
     input_words = telegram_item['message']['text'].split(' ')
-    pre_msg = ''
 
-    if len(input_words) > 1 and command in msg:
+    keyboard_data =  {
+        'reply_markup' : {
+            'inline_keyboard': [
+                [ { 'text': cmd, 'callback_data':'help|'+cmd }]
+                for cmd in msg
+            ],
+        },
+    }
+
+    if len(input_words) > 1:
         command = input_words[1].lower()
-        return bot.reply_message(
-            telegram_item, 
-            pre_msg + msg[command], 
-            is_markdown=True, 
-            is_direct_reply=True, 
-            custom_data=keyboard_data
-        )
+        if command not in msg:
+            return bot.reply_message(
+                telegram_item,
+                'Maaf, help untuk command `{}` tidak ditemukan'.format(command),
+                is_markdown=True,
+                is_direct_reply=True,
+            )
+        else:
+            return bot.reply_message(
+                telegram_item,
+                msg[command],
+                is_markdown=True,
+                is_direct_reply=True,
+            )
     else:
-        keyboard_data =  {
-            'reply_markup' : {
-                'inline_keyboard': [
-                    [ { 'text': cmd, 'callback_data':'help|'+cmd }]
-                    for cmd in msg
-                ],
-            },
-        }
+        # default: display help button list
         return bot.reply_message(
-            telegram_item, 
-            "Silahkan pilih salah satu tombol di bawah:\n", 
+            telegram_item,
+            "Silahkan pilih salah satu tombol di bawah:\n",
             custom_data=keyboard_data
         )
 
@@ -96,7 +104,7 @@ def inline_callback_handler(item):
         'message_id': item['callback_query']['message']['message_id'],
         'parse_mode': 'MarkdownV2',
         'text': "Command `/{}`: \n{}".format(
-            input_words[1], 
+            input_words[1],
             msg[input_words[1]]
         ),
     })
