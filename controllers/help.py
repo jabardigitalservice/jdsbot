@@ -1,9 +1,7 @@
 import models.bot as bot
 
-def action_help(telegram_item):
-    """ action for /help command """
-    msg = {}
-    msg['default'] = """Command\-command yang tersedia:
+msg = {}
+msg['default'] = """Command\-command yang tersedia:
 
 \- `/help` : menampilkan command\-command cara untuk menggunakan bot ini
 \- `/about` : menampilkan penjelasan tentang bot ini
@@ -19,7 +17,7 @@ def action_help(telegram_item):
 Untuk mendapatkan bantuan detail dari command\-command di atas, silahkan gunakan command `/help <nama_command` \. contoh: `/help lapor`
 """
 
-    msg['lapor'] = """
+msg['lapor'] = """
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
 2\. Reply gambar tersebut dengan format command seperti berikut :
@@ -44,9 +42,9 @@ Contoh Reply command:
 /lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
 Peserta: rizkiadam01
 ```
-    """
+"""
 
-    msg['checkin'] = """
+msg['checkin'] = """
 Cara menggunakan command `/checkin`:
 ```
 /checkin <username atau alias> | <jenis kehadiran>
@@ -55,12 +53,31 @@ Catatan
 1\. Untuk jenis kehadiran hanya bisa hadir saja
 """
 
-    msg['checkout'] = """
+msg['checkout'] = """
 Cara menggunakan command `/checkout`:
 ```
 /checkout <username atau alias>
 ```
 """
+
+msg['listproject'] = """
+Cara menggunakan command `/listproject`:
+
+Cukup panggil command `/listproject`
+"""
+
+msg['tambah'] = """
+Cara menggunakan command `/tambah`:
+
+Reply command `/lapor` yang ingin ditambahkan pesertanya dengan command berikut:
+```
+/tambah <nama peserta 1> <nama peserta 2> <seterusnya...>
+```
+daftar peserta dipisahkan dengan spasi atau koma
+"""
+
+def action_help(telegram_item):
+    """ action for /help command """
     input_words = telegram_item['message']['text'].split(' ')
     pre_msg = ''
 
