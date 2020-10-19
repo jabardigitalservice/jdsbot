@@ -1,17 +1,25 @@
 import models.bot as bot
 
-msg = {}
-msg['help'] = "menampilkan command\-command cara untuk menggunakan bot ini"
-msg['about'] = "menampilkan penjelasan tentang bot ini"
-msg['tambah'] = "Menambahkan user yang mungkin belum tersebut di laporan yang sudah tersubmit dengan command `/lapor`"
-msg['whatsnew'] = "mberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan"
-msg['setalias'] = "Mengubah alias username telegram untuk salah satu username DigiTeam"
-msg['listproject'] = "Menampilkan list semua project yang ada di DigiTeam saat ini"
-msg['cekabsensi'] = "Menampilkan daftar user yang belum check\-in di groupware hari ini"
+def action_help(telegram_item):
+    """ action for /help command """
+    msg = {}
+    msg['default'] = """Command\-command yang tersedia:
 
-msg['lapor'] = """
-Mengirimkan laporan ke aplikasi digiteam groupware JDS"
+\- `/help` : menampilkan command\-command cara untuk menggunakan bot ini
+\- `/about` : menampilkan penjelasan tentang bot ini
+\- `/lapor` : Mengirimkan laporan ke aplikasi digiteam groupware JDS
+\- `/tambah` : Menambahkan user yang mungkin belum tersebut di laporan yang sudah tersubmit dengan command `/lapor`
+\- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
+\- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
+\- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
+\- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
+\- `/checkin` : Untuk melakukan absensi
+\- `/checkout` : Untuk melakukan checkout absensi
 
+Untuk mendapatkan bantuan detail dari command\-command di atas, silahkan gunakan command `/help <nama_command` \. contoh: `/help lapor`
+"""
+
+    msg['lapor'] = """
 Cara menggunakan command `/lapor`:
 1\. Post dulu gambar evidence nya ke telegram,
 2\. Reply gambar tersebut dengan format command seperti berikut :
@@ -36,11 +44,9 @@ Contoh Reply command:
 /lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
 Peserta: rizkiadam01
 ```
-"""
+    """
 
-msg['checkin'] = """
-Untuk melakukan checkin absensi
-
+    msg['checkin'] = """
 Cara menggunakan command `/checkin`:
 ```
 /checkin <username atau alias> | <jenis kehadiran>
@@ -49,68 +55,41 @@ Catatan
 1\. Untuk jenis kehadiran hanya bisa hadir saja
 """
 
-msg['checkout'] = """
-Untuk melakukan checkout absensi
-
+    msg['checkout'] = """
 Cara menggunakan command `/checkout`:
 ```
 /checkout <username atau alias>
 ```
 """
 
-def action_help(telegram_item):
-    """ action for /help command """
-
     input_words = telegram_item['message']['text'].split(' ')
 
-    keyboard_data =  {
+    if len(input_words) < 2 :
+        command = 'default'
+    else:
+        command = input_words[1].lower()
+
+    if command not in msg:
+        command = 'default'
+        pre_msg = "Command tidak ditemukan\. "
+
+    keyboard_data = None if command != 'default' else {
         'reply_markup' : {
-            'inline_keyboard': [
-                [ { 'text': cmd, 'callback_data':'help|'+cmd }]
+            'keyboard': [
+                [ { 'text': '/help ' + cmd }]
                 for cmd in msg
+                if cmd != 'default'
             ],
+            'one_time_keyboard' : True,
+            'selective': False,
+            'resize_keyboard': True,
         },
     }
 
-    if len(input_words) > 1:
-        command = input_words[1].lower()
-        if command not in msg:
-            return bot.reply_message(
-                telegram_item,
-                'Maaf, help untuk command `{}` tidak ditemukan'.format(command),
-                is_markdown=True,
-                is_direct_reply=True,
-            )
-        else:
-            return bot.reply_message(
-                telegram_item,
-                msg[command],
-                is_markdown=True,
-                is_direct_reply=True,
-            )
-    else:
-        # default: display help button list
-        return bot.reply_message(
-            telegram_item,
-            "Silahkan pilih salah satu tombol di bawah:\n",
-            custom_data=keyboard_data
-        )
-
-def inline_callback_handler(item):
-    input_words = item['callback_query']['data'].split('|')
-
-    bot.run_command('/editMessageText', {
-        'chat_id': item['callback_query']['message']['chat']['id'],
-        'message_id': item['callback_query']['message']['message_id'],
-        'parse_mode': 'MarkdownV2',
-        'text': "Command `/{}`: \n{}".format(
-            input_words[1],
-            msg[input_words[1]]
-        ),
-    })
-
-    bot.run_command('/answerCallbackQuery', {
-        'callback_query_id': item['callback_query']['id'],
-    })
-
-    return True
+    return bot.reply_message(
+        telegram_item,
+        pre_msg + msg[command],
+        is_markdown=True,
+        is_direct_reply=True,
+        custom_data=keyboard_data
+    )
