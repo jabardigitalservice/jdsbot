@@ -44,6 +44,16 @@ Peserta: rizkiadam01
 ```
 """
 
+msg['tambah'] = """
+Cara menggunakan command `/tambah`:
+
+Reply command `/lapor` yang ingin ditambahkan pesertanya dengan command berikut:
+```
+/tambah <nama peserta 1> <nama peserta 2> <seterusnya...>
+```
+daftar peserta dipisahkan dengan spasi atau koma
+"""
+
 msg['checkin'] = """
 Cara menggunakan command `/checkin`:
 ```
@@ -66,16 +76,6 @@ Cara menggunakan command `/listproject`:
 Cukup panggil command `/listproject`
 """
 
-msg['tambah'] = """
-Cara menggunakan command `/tambah`:
-
-Reply command `/lapor` yang ingin ditambahkan pesertanya dengan command berikut:
-```
-/tambah <nama peserta 1> <nama peserta 2> <seterusnya...>
-```
-daftar peserta dipisahkan dengan spasi atau koma
-"""
-
 def action_help(telegram_item):
     """ action for /help command """
     input_words = telegram_item['message']['text'].split(' ')
@@ -90,13 +90,21 @@ def action_help(telegram_item):
         pre_msg = 'Help untuk command `{}` tidak ditemukan\. '.format(command)
         command = 'default'
 
+    # create 2 column keyboard layout
+    keyboard=[]
+    i = 0
+    for cmd in msg.keys():
+        if cmd == 'default':
+            continue
+        if i%2 == 0 :
+            keyboard.append([])
+        keyboard[i//2].append({ 'text': '/help ' + cmd })
+        i = i + 1
+
     keyboard_data = None if command != 'default' else {
         'reply_markup' : {
-            'keyboard': [
-                [ { 'text': '/help ' + cmd }]
-                for cmd in msg
-                if cmd != 'default'
-                ],
+            # create 2 row keyboard layout
+            'keyboard': keyboard,
             'one_time_keyboard' : True,
             'selective': False,
             'resize_keyboard': True,
