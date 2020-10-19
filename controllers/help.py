@@ -61,8 +61,8 @@ Cara menggunakan command `/checkout`:
 /checkout <username atau alias>
 ```
 """
-
     input_words = telegram_item['message']['text'].split(' ')
+    pre_msg = ''
 
     if len(input_words) < 2 :
         command = 'default'
@@ -70,8 +70,8 @@ Cara menggunakan command `/checkout`:
         command = input_words[1].lower()
 
     if command not in msg:
+        pre_msg = 'Help untuk command `{}` tidak ditemukan\. '.format(command)
         command = 'default'
-        pre_msg = "Command tidak ditemukan\. "
 
     keyboard_data = None if command != 'default' else {
         'reply_markup' : {
@@ -79,7 +79,7 @@ Cara menggunakan command `/checkout`:
                 [ { 'text': '/help ' + cmd }]
                 for cmd in msg
                 if cmd != 'default'
-            ],
+                ],
             'one_time_keyboard' : True,
             'selective': False,
             'resize_keyboard': True,
