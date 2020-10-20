@@ -16,6 +16,7 @@ import models.db as db
 import models.chat_history as chat_history
 import controllers.checkin as checkin
 import controllers.checkout as checkout
+from controllers.help import action_help
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
@@ -94,61 +95,6 @@ def action_whatsnew(telegram_item):
 \- Beberapa perubahan pesan error untuk peserta yang kosong dan salah format
 \- Command baru `/tambah` untuk menambahkan peserta di laporan yang sudah disubmit
 """
-    return bot.reply_message(telegram_item, msg, is_markdown=True)
-
-def action_help(telegram_item):
-    """ action for /help command """
-    msg = """Command\-command yang tersedia:
-
-\- `/help` : menampilkan command\-command cara untuk menggunakan bot ini
-\- `/about` : menampilkan penjelasan tentang bot ini
-\- `/lapor` : Mengirimkan laporan ke aplikasi digiteam groupware JDS
-\- `/tambah` : Menambahkan user yang mungkin belum tersebut di laporan yang sudah tersubmit dengan command `/lapor`
-\- `/whatsnew` memberikan informasi fitur\-fitur atau perubahan\-perubahanyang baru ditambahkan
-\- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
-\- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
-\- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
-\- `/checkin` : Untuk melakukan absensi
-\- `/checkout` : Untuk melakukan checkout absensi
-
-Cara menggunakan command `/lapor`:
-1\. Post dulu gambar evidence nya ke telegram,
-2\. Reply gambar tersebut dengan format command seperti berikut :
-
-```
-/lapor <nama_project_di_groupware> | <nama_kegiatan>
-Peserta: <user_groupware_1> , <user_groupware_2>
-```
-
-Cara menggunakan command `/checkin`:
-```
-/checkin <username atau alias> | <jenis kehadiran>
-```
-Catatan
-1\. Untuk jenis kehadiran hanya bisa hadir saja
-
-Cara menggunakan command `/checkout`:
-```
-/checkout <username atau alias>
-```
-
-Keterangan Opsi\-Opsi:
-\- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
-\- `<nama_kegiatan>` : isi dengan nama tugas yang dikerjakan di project tersebut\. bisa diisi dengan teks yang panjang\.
-\- `Peserta`: yang digunakan adalah username yang digiteam groupware\. Username groupware diambil dari username gmail yang digunakan di aplikasi digiteam groupware\, misal email `jdsitdev@gmail.com` maka username yang digunakan adalah `jdsitdev`\.
-
-Keterangan tambahan :
-\- Semua hasil input di bot telegram ini bisa di edit lagi melalui akun digiteam groupware masing2
-\- Kami sudah menyiapkan nilai default untuk Atribut lain\. Silahkan langsung dapat di sesuaikan value atribut lain ini di aplikasi groupware
-\- Saat ini kita tengah mengembangkan agar semua atribut ini dapat diisi semua via telegram
-
-Contoh Reply command:
-```
-/lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
-Peserta: rizkiadam01
-```
-
-    """
     return bot.reply_message(telegram_item, msg, is_markdown=True)
 
 def action_setalias(telegram_item):
