@@ -40,7 +40,7 @@ Keterangan tambahan :
 Contoh Reply command:
 ```
 /lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
-Peserta: rizkiadam01
+Peserta: asepkasep
 ```
 """
 
