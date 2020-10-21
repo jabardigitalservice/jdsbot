@@ -2,7 +2,7 @@
 This module handle all function regarding bot actions including parsing telegram
 update data, sending telegram message, handling command and input, etc
 """
-import os, json, time, traceback, re
+import os, json, time, traceback
 from datetime import datetime, timezone, timedelta
 
 import requests
@@ -16,6 +16,9 @@ import models.db as db
 import models.chat_history as chat_history
 import controllers.checkin as checkin
 import controllers.checkout as checkout
+import controllers.lapor as lapor
+import controllers.tambah as tambah
+import controllers.setalias as setalias
 from controllers.help import action_help
 
 GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
@@ -35,53 +38,6 @@ def setup():
     print('PROJECT_LIST:', groupware.PROJECT_LIST)
     print('user.ALIAS:', user.ALIAS)
 
-def action_lapor(item, peserta=None):
-    """ action for /lapor command """
-    # parse input
-    if 'caption' in item['message']:
-        input_text = item['message']['caption']
-    elif 'text' in item['message']:
-        input_text = item['message']['text']
-
-    lines = input_text.split("\n")
-    first_params = lines[0]
-    first_params = first_params[first_params.find(' ')+1 :] # start from after first ' '
-    first_params = first_params.split('|') # split with '|'
-    if len(first_params) != 2 :
-        bot.process_error(item, 'Wrong format')
-        return
-
-    data = {
-        'projectName': first_params[0].strip(),
-        'nameTask': first_params[1].strip(),
-    }
-    # parsing options params
-    for line in lines[1:]:
-        val = [ l.strip() for l in line.split(sep=':', maxsplit=1) ]
-        if len(val) > 1 and len(val[1]) > 0: # only process lines which contain field_name & content
-            field_name = val[0].lower()
-            content = val[1]
-            if field_name == 'peserta':
-                data[field_name] = [
-                    name.strip()
-                    for name in re.split(',|\ ', content)
-                    if len(name.strip()) > 0
-                ]
-            else:
-                data[field_name] = content
-
-    if 'photo' in item['message']:
-        image_data = bot.process_images(item['message']['photo'])
-    # if this message is replying to a photo
-    elif 'reply_to_message' in item['message'] \
-    and 'photo' in item['message']['reply_to_message']:
-            image_data = bot.process_images(item['message']['reply_to_message']['photo'])
-    else:
-        bot.process_error(item, 'No photo data in this input!')
-        return None
-
-    return bot.process_report(item, data, image_data, peserta=peserta, save_history=(peserta is None))
-
 def action_about(telegram_item):
     """ action for /about command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
@@ -96,28 +52,6 @@ def action_whatsnew(telegram_item):
 \- Command baru `/tambah` untuk menambahkan peserta di laporan yang sudah disubmit
 """
     return bot.reply_message(telegram_item, msg, is_markdown=True)
-
-def action_setalias(telegram_item):
-    """ action for /whatsnew command """
-    # parse input
-    if 'text' in telegram_item['message']:
-        input_text = telegram_item['message']['text']
-
-    try:
-        input_text = input_text.split(' ', maxsplit=1)[1] # start from after first ' '
-        val = input_text.split('|')
-        res, msg = user.set_alias(val[0].strip(), val[1].strip() )
-    except Exception as e:
-        print(e)
-        print(traceback.print_exc())
-        bot.process_error(telegram_item, e)
-        return None
-
-    print('hasil setalias:', res, msg)
-
-    bot.reply_message(telegram_item, msg, is_direct_reply=True)
-
-    return None if not res else res
 
 def action_listproject(telegram_item):
     """ action for /listproject command """
@@ -170,8 +104,8 @@ Halo-halo digiteam,
 Berikut nama-nama yang belum checkin kehadiran hari ini ({} sampai dengan pukul {}) :
 {}
 Yuk ditunggu buat checkin langsung di aplikasi digiteam ya {}. Terimakasih & Tetap Semangat ❤""".format(
-    now.strftime('%Y-%m-%d'), 
-    now.strftime('%H:%M'), 
+    now.strftime('%Y-%m-%d'),
+    now.strftime('%H:%M'),
     attendance_msg,
     GROUPWARE_WEB_URL)
 
@@ -185,30 +119,6 @@ def action_ngobrol(telegram_item):
         'chat_id': pecah2[1],
         'text': pecah2[2],
     })
-
-def action_tambah(telegram_item):
-    """ tambah peserta ke laporan yg sudah ada """
-    if 'reply_to_message' not in telegram_item['message']:
-        bot.process_error(telegram_item, 'Command tambah harus me-reply command lapor sebelumnya')
-        return None
-
-    history = chat_history.get(
-        chat_id=telegram_item['message']['chat']['id'],
-        message_id=telegram_item['message']['reply_to_message']['message_id'])
-
-    if history is None:
-        bot.process_error(telegram_item, 'Maaf command yang di reply bermasalah. Silahkan coba lagi atau gunakan command lapor')
-        return None
-
-    peserta = re.split(',|\ ', telegram_item['message']['text'])
-    peserta = [ 
-        name
-        for name in peserta[1:]
-        if len(name.strip()) > 0
-    ]
-    item = history['content']
-
-    return action_lapor(item, peserta)
 
 def process_telegram_input(item):
     """ process a single telegram update item
@@ -242,17 +152,17 @@ def process_telegram_input(item):
     print('receiving input :', input_text)
 
     available_commands = {
-        '/lapor' : action_lapor,
+        '/lapor' : lapor.action_lapor,
+        '/tambah' : tambah.action_tambah,
         '/start' : action_about,
         '/about' : action_about,
         '/help' : action_help,
         '/whatsnew' : action_whatsnew,
-        '/setalias' : action_setalias,
+        '/setalias' : setalias.action_setalias,
         '/listproject': action_listproject,
         '/reload_data': action_reload,
         '/cekabsensi': action_cekabsensi,
         '/ngobrol' : action_ngobrol,
-        '/tambah' : action_tambah,
         '/checkin' : checkin.action_checkin,
         '/checkout' : checkout.action_checkout,
     }
