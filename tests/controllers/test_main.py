@@ -14,7 +14,7 @@ import models.user as user
 import models.chat_history as chat_history
 import models.bot as bot_model
 
-import bot_controller as bot
+import controllers.main as main_controller
 
 class TestBot(unittest.TestCase):
     @classmethod
@@ -32,7 +32,7 @@ class TestBot(unittest.TestCase):
         groupware.LOGBOOK_API_URL = 'https://httpbin.org/anything'
 
         # send dummy data to replied to
-        image_file_path = Path(__file__).parent / 'single-pixel.png'
+        image_file_path = Path(__file__).parent.parent / 'single-pixel.png'
         req = requests.post(
             url=bot_model.ROOT_BOT_URL + '/sendPhoto',
             files = { 'photo': open(image_file_path, 'rb') },
@@ -63,14 +63,14 @@ class TestBot(unittest.TestCase):
 
         # insert username to user table
         query_insert = sqlalchemy.text("""
-            INSERT INTO 
-            users(username, password) 
+            INSERT INTO
+            users(username, password)
             VALUES(:username, :password)""")
         db.get_conn().execute(query_insert,
-            username=self.test_user, 
+            username=self.test_user,
             password=self.test_user)
 
-        bot.setup()
+        main_controller.setup()
 
     @classmethod
     def tearDownClass(self):
@@ -78,140 +78,140 @@ class TestBot(unittest.TestCase):
 
     def test_empty_message(self):
         item = {}
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_random_command(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/notarealcommand'
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_about_normal(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/about'
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
     def test_about_mention_this_bot(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/about@'+bot_model.BOT_USERNAME
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
     def test_about_mention_other_bot(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/about@otherbot'
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_about_date_past(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/about'
         item['message']['date'] = datetime(2000, 12, 31).timestamp()
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_about_random_chat_id(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/about'
         item['message']['chat']['id'] = 'asal'
         with self.assertRaises(Exception):
-            bot.process_telegram_input(item)
+            main_controller.process_telegram_input(item)
 
     def test_lapor_normal_with_text(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta:' + self.test_user
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
     def test_lapor_normal_with_caption(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['photo'] = item['message']['reply_to_message']['photo']
         del item['message']['reply_to_message']
         item['message']['caption'] = '/lapor Riset|unittest\npeserta:' + self.test_user
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
     def test_lapor_without_reply(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta:' + self.test_user
         del item['message']['reply_to_message']
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_lapor_empty_peserta(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest'
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_lapor_reply_no_photo(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta:' + self.test_user
         del item['message']['reply_to_message']['photo']
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_set_alias_normal(self):
         # set alias
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias {}|@random_alias'.format(self.test_user)
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
         # test /lapor with alias
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta: @random_alias'
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
         # test set alias already exist
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias random.user|@random_alias'
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_set_alias_normal_case_insensitive(self):
         # set alias
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias {}|@random_alias_2'.format(self.test_user)
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
         # test /lapor with alias
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta: @RANDOM_ALIAS_2'
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
     def test_set_alias_random_user(self):
         # set alias
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/setalias random.user|@random_alias'
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_lapor_random_project_name(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor asl|unittest\npeserta:' + self.test_user
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
     def test_cekabsensi(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/cekabsensi'
-        self.assertIsNotNone(bot.process_telegram_input(item))
+        self.assertIsNotNone(main_controller.process_telegram_input(item))
 
     def test_command_tambah_normal(self):
         # first create normal laporan
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta:' + self.test_user
-        res = bot.process_telegram_input(item)
+        res = main_controller.process_telegram_input(item)
         self.assertIsNotNone(res)
 
         # run actual tambah command
         item_tambah = json.loads(json.dumps(self.default_data))
         item_tambah['message']['text'] = '/tambah ' + self.test_user
         item_tambah['message']['reply_to_message']['message_id'] = item['message']['message_id']
-        self.assertIsNotNone(bot.process_telegram_input(item_tambah))
+        self.assertIsNotNone(main_controller.process_telegram_input(item_tambah))
     def test_command_tambah_random_command(self):
         item_tambah = json.loads(json.dumps(self.default_data))
         item_tambah['message']['text'] = '/tambah ' + self.test_user
         item_tambah['message']['reply_to_message']['message_id'] = 0
-        self.assertIsNone(bot.process_telegram_input(item_tambah))
+        self.assertIsNone(main_controller.process_telegram_input(item_tambah))
 
     @unittest.skip(""" Untuk testing username not found sejauh ini belum ditemukan
-    format testing yang baik karena dalam 1 kali submisi bisa ada bbrp user 
+    format testing yang baik karena dalam 1 kali submisi bisa ada bbrp user
     sekaligus yang dilaporkan sehingga sulit ditentukan jika hanya sebagian user
     saja yang gagal apakah kasus tersebut gagal secara keseluruhan atau tidak
     """)
     def test_lapor_random_user(self):
         item = json.loads(json.dumps(self.default_data))
         item['message']['text'] = '/lapor Riset|unittest\npeserta: random_user'
-        self.assertIsNone(bot.process_telegram_input(item))
+        self.assertIsNone(main_controller.process_telegram_input(item))
 
 if __name__ == '__main__':
     unittest.main()
