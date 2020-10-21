@@ -2,7 +2,7 @@
 - measurement protocol docs: https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide
 - parameter references: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters
 """
-import os, hashlib
+import os, hashlib, uuid
 from pathlib import Path
 
 import requests
@@ -18,7 +18,6 @@ def log_analytics(data, is_debug=False):
     """ send google analytic data """
     data['v']=1             # Version.
     data['tid']=GOOGLE_ANALYTIC_TRACKING_ID  # Tracking ID / Property ID.
-    data['t']='event'         # Event hit type
     data['ds']='telegram_bot' # data source
 
     url = GOOGLE_ANALYTIC_API_URL \
@@ -33,7 +32,8 @@ def log_analytics(data, is_debug=False):
 
 def log_user_checkin(username, result=None, is_debug=False):
     data = {
-        'uid': hashlib.sha1(username.encode()).hexdigest(),  # Tracking ID / Property ID.
+        't': 'event',         # Event hit type
+        'uid': hashlib.sha1(username.encode()).hexdigest(),  # user ID.
         'ec': 'kehadiran',        # Event Category. Required.
         'ea': 'checkin',         # Event Action. Required.
     }
@@ -41,7 +41,19 @@ def log_user_checkin(username, result=None, is_debug=False):
         data['el'] = result      # Event label.
     return log_analytics(data, is_debug)
 
-if __name__ == '__main__':
-    res = log_user_checkin('abdurrahman.shofy', is_debug=False)
+def log_command_call(command, is_debug=False):
+    data = {
+        't': 'pageview',         # Event hit type
+        'uid': str(uuid.uuid4()),  # user ID.
+        'dp': command,         # page. in our case, command.
+        # 'dh': mydemo.com   // Document hostname.
+        # 'dt': homepage     // Title.
+    }
+    return log_analytics(data, is_debug)
 
+if __name__ == '__main__':
+    res = log_user_checkin('abdurrahman.shofy', is_debug=True)
+    print('result:',res)
+
+    res = log_command_call('/help', is_debug=True)
     print('result:',res)
