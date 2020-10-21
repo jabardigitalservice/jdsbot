@@ -3,6 +3,9 @@ Bot groupware JDS
 
 Bot telegram untuk submit groupware dari group evidence telegram
 
+![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/jabardigitalservice/jdsbot)
+![Code Climate technical debt](https://img.shields.io/codeclimate/tech-debt/jabardigitalservice/jdsbot?style=plastic)
+
 ## Cara setup
 
 1. Copy file example.env menjadi .env, isikan variabel yang ada
