@@ -7,6 +7,7 @@ from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 app = FastAPI()
 
 import controllers.main as main_controller
+import controllers.cekabsensi as cekabsensi
 main_controller.setup()
 
 def verify_token(token):
@@ -37,6 +38,6 @@ async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token
             }
         }
     }
-    background_tasks.add_task(main_controller.action_cekabsensi, data)
+    background_tasks.add_task(cekabsensi.action_cekabsensi, data)
     return 'ok'
 
