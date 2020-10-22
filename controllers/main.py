@@ -3,7 +3,6 @@ This module handle all function regarding bot actions including parsing telegram
 update data, sending telegram message, handling command and input, etc
 """
 import os, json, time, traceback
-from datetime import datetime, timezone, timedelta
 
 import requests
 from dotenv import load_dotenv
@@ -19,15 +18,11 @@ import controllers.checkout as checkout
 import controllers.lapor as lapor
 import controllers.tambah as tambah
 import controllers.setalias as setalias
+import controllers.cekabsensi as cekabsensi
 from controllers.help import action_help
-
-GROUPWARE_WEB_URL=os.getenv('GROUPWARE_WEB_URL')
 
 processed=[]
 START_TIME = time.time()
-
-# timezone for Asia/Jakarta (UTC+7)
-TIMEZONE = timezone(timedelta(hours=7))
 
 def setup():
     """ iniate bot_controller """
@@ -79,38 +74,6 @@ def action_reload(telegram_item):
 
     return bot.reply_message(telegram_item, 'reload success')
 
-def action_cekabsensi(telegram_item):
-    """ action for /cekabsensi command """
-    global GROUPWARE_WEB_URL
-
-    now = datetime.now(TIMEZONE)
-    attendance_list = user.get_users_attendance(now.strftime('%Y-%m-%d'))
-    attendance_msg = ''
-
-    row_num = 1
-    for row in sorted(attendance_list):
-        if not row[3]:
-            attendance_msg += "{}. {} ({})\n".format(
-                row_num,
-                row[0],
-                row[2]
-            )
-
-            row_num += 1
-
-    msg = """#INFOABSENSI
-
-Halo-halo digiteam,
-Berikut nama-nama yang belum checkin kehadiran hari ini ({} sampai dengan pukul {}) :
-{}
-Yuk ditunggu buat checkin langsung di aplikasi digiteam ya {}. Terimakasih & Tetap Semangat ❤""".format(
-    now.strftime('%Y-%m-%d'),
-    now.strftime('%H:%M'),
-    attendance_msg,
-    GROUPWARE_WEB_URL)
-
-    return bot.reply_message(telegram_item, msg)
-
 def action_ngobrol(telegram_item):
     """ chat sebagai bot telegram """
     pecah2 = telegram_item['message']['text'].split(' ', maxsplit=2)
@@ -161,7 +124,7 @@ def process_telegram_input(item):
         '/setalias' : setalias.action_setalias,
         '/listproject': action_listproject,
         '/reload_data': action_reload,
-        '/cekabsensi': action_cekabsensi,
+        '/cekabsensi': cekabsensi.action_cekabsensi,
         '/ngobrol' : action_ngobrol,
         '/checkin' : checkin.action_checkin,
         '/checkout' : checkout.action_checkout,
