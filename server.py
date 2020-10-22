@@ -6,8 +6,9 @@ from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 
 app = FastAPI()
 
-import bot_controller
-bot_controller.setup()
+import controllers.main as main_controller
+import controllers.cekabsensi as cekabsensi
+main_controller.setup()
 
 def verify_token(token):
     """ verifiy access token """
@@ -23,7 +24,7 @@ async def process_telegram(request: Request, background_tasks: BackgroundTasks, 
     verify_token(token)
 
     input_data = await request.json()
-    background_tasks.add_task(bot_controller.process_telegram_input, input_data)
+    background_tasks.add_task(main_controller.process_telegram_input, input_data)
     return 'ok'
 
 @app.post('/cekabsensi/{token}')
@@ -37,6 +38,6 @@ async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token
             }
         }
     }
-    background_tasks.add_task(bot_controller.action_cekabsensi, data)
+    background_tasks.add_task(cekabsensi.action_cekabsensi, data)
     return 'ok'
 
