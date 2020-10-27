@@ -7,24 +7,27 @@ from pathlib import Path
 
 import sqlalchemy
 from dotenv import load_dotenv
-env_path = Path(__file__).parent.parent /  '.env'
+
+env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # ONLY FOR MYSQL
 db_meta = sqlalchemy.MetaData()
 USER_TABLE_DEFINITION = sqlalchemy.Table(
-   'users', db_meta, 
-   sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
-   sqlalchemy.Column('username', sqlalchemy.String(100)), 
-   sqlalchemy.Column('password', sqlalchemy.String(100)), 
-   sqlalchemy.Column('alias', sqlalchemy.String(100)), 
+    "users",
+    db_meta,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("username", sqlalchemy.String(100)),
+    sqlalchemy.Column("password", sqlalchemy.String(100)),
+    sqlalchemy.Column("alias", sqlalchemy.String(100)),
 )
 
-# global variables 
-ENGINE=None
-CONNECTION=None
+# global variables
+ENGINE = None
+CONNECTION = None
+
 
 def get_engine(new=False):
     global ENGINE
@@ -36,6 +39,7 @@ def get_engine(new=False):
         ENGINE = sqlalchemy.create_engine(DATABASE_URL)
     return ENGINE
 
+
 def get_conn(new=False):
     global CONNECTION
 
@@ -46,15 +50,17 @@ def get_conn(new=False):
         CONNECTION = get_engine().connect()
     return CONNECTION
 
+
 def db_exec(*args):
     return get_conn().execute(*args)
 
+
 def execute(raw_query, args=None, once=False):
-    """ run sql command with slalchemy features
+    """run sql command with slalchemy features
     Params
     ------
     once: bool
-        execute with on-time connection 
+        execute with on-time connection
     """
     query = sqlalchemy.text(raw_query)
 
@@ -66,4 +72,3 @@ def execute(raw_query, args=None, once=False):
 
     conn.commit()
     conn.close()
-

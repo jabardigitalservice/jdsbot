@@ -7,7 +7,8 @@ from pathlib import Path
 
 import sqlalchemy
 from dotenv import load_dotenv
-env_path = Path(__file__).parent.parent /  '.env'
+
+env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 import models.db as db
@@ -17,65 +18,68 @@ import models.groupware as groupware
 PASSWORD = {}
 ALIAS = {}
 
+
 def create_table():
     DB_META = sqlalchemy.MetaData()
     USER_TABLE_DEFINITION = sqlalchemy.Table(
-       'users', DB_META, 
-       sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
-       sqlalchemy.Column('username', sqlalchemy.String(100)), 
-       sqlalchemy.Column('password', sqlalchemy.String(100)), 
-       sqlalchemy.Column('alias', sqlalchemy.String(100)), 
+        "users",
+        DB_META,
+        sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+        sqlalchemy.Column("username", sqlalchemy.String(100)),
+        sqlalchemy.Column("password", sqlalchemy.String(100)),
+        sqlalchemy.Column("alias", sqlalchemy.String(100)),
     )
     DB_META.create_all(db.get_engine())
 
-def get_user_list():
-    res = db.db_exec('SELECT username, password, alias FROM users')
 
-    return [ row for row in res ]
+def get_user_list():
+    res = db.db_exec("SELECT username, password, alias FROM users")
+
+    return [row for row in res]
+
 
 def load_user_data():
     global PASSWORD
     global ALIAS
 
     USER_LIST = get_user_list()
-    PASSWORD = { row[0]:row[1] for row in USER_LIST }
-    ALIAS = { 
-        row[2].lower():row[0] 
-        for row in USER_LIST 
+    PASSWORD = {row[0]: row[1] for row in USER_LIST}
+    ALIAS = {
+        row[2].lower(): row[0]
+        for row in USER_LIST
         if row[2] is not None and len(row[2]) > 0
     }
+
 
 def set_alias(username, new_alias):
     global ALIAS
 
-    print('set alias for : username', username, 'new_alias', new_alias)
+    print("set alias for : username", username, "new_alias", new_alias)
     if new_alias in ALIAS:
-        return (False, 'Alias already exists')
+        return (False, "Alias already exists")
 
     query_find_user = """
         SELECT * 
         FROM users 
         WHERE username = :username"""
     res_find_user = db.execute(
-        query_find_user,  
-        {'username':username},
-        once=True).fetchall()
-    print('res_find_user', res_find_user)
+        query_find_user, {"username": username}, once=True
+    ).fetchall()
+    print("res_find_user", res_find_user)
     if len(res_find_user) < 1:
-        return (False, 'User not found')
+        return (False, "User not found")
 
     query_update = """
         UPDATE users 
         SET alias = :alias 
         WHERE username = :username"""
     res = db.execute(
-        query_update, {
-            'alias':new_alias, 
-            'username':username
-        }, once=True)
+        query_update, {"alias": new_alias, "username": username}, once=True
+    )
 
     load_user_data()
-    return (True, 'success')
+    return (True, "success")
+
 
 def get_user_token(username):
     global ALIAS
@@ -91,36 +95,37 @@ def get_user_token(username):
 
     return groupware.get_token(username, password)
 
+
 def get_users_attendance(date=None):
     """ get list of user with its attendence """
     global ALIAS
     global PASSWORD
 
-    auth_token = get_user_token(os.getenv('TEST_USER'))
-    ALIAS_INV = {v:k for k, v in ALIAS.items()}
+    auth_token = get_user_token(os.getenv("TEST_USER"))
+    ALIAS_INV = {v: k for k, v in ALIAS.items()}
 
     attendance_list = groupware.get_attendance(auth_token, date)
-    attendance_list = {
-        row['username'] : row['fullname']
-        for row in attendance_list
-    }
+    attendance_list = {row["username"]: row["fullname"] for row in attendance_list}
 
-    results= []
+    results = []
     for username in PASSWORD:
         if username in attendance_list:
-            results.append([
-                username,
-                attendance_list[username],
-                ALIAS_INV[username],
-                True,
-            ])
+            results.append(
+                [
+                    username,
+                    attendance_list[username],
+                    ALIAS_INV[username],
+                    True,
+                ]
+            )
         else:
-            results.append([
-                username,
-                None,
-                ALIAS_INV[username],
-                False,
-            ])
+            results.append(
+                [
+                    username,
+                    None,
+                    ALIAS_INV[username],
+                    False,
+                ]
+            )
 
     return results
-
