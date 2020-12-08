@@ -18,9 +18,24 @@ TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
 IS_DEBUG=(os.getenv('IS_DEBUG', 'false').lower() == 'true')
 PROJECT_LIST = None
 
+def request_base(method, *args, **argv):
+    """ wrapper for all network request """
+    try:
+        req = requests.request(method, *args, **argv)
+    except requests.exceptions.ConnectionError as e:
+        raise Exception('Terjadi masalah sambungan ke server DigiTeam. Mohon coba beberapa saat lagi')
+
+    return req
+
+def request_get(*args, **argv):
+    return request_base('GET', *args, **argv)
+
+def request_post(*args, **argv):
+    return request_base('POST', *args, **argv)
+
 def get_token(username, password):
     """ dapetin token dari username & password """
-    req = requests.post(url=LOGIN_API_URL, data={
+    req = request_post(url=LOGIN_API_URL, data={
         'username': username,
         'password': password,
     })
@@ -41,7 +56,7 @@ def load_project_list(auth_token):
     headers = {
         'Authorization': 'Bearer ' + auth_token,
     }
-    req = requests.get(url=PROJECT_LIST_API_URL, headers=headers)
+    req = request_get(url=PROJECT_LIST_API_URL, headers=headers)
 
     if req.status_code < 300:
         raw_response = req.json()
@@ -65,7 +80,7 @@ def get_attendance(auth_token, date=None):
     }
 
     api_url = ROOT_API_URL+'/attendance/?limit=200&pageSize=200&date={}'.format(date)
-    req = requests.get(
+    req = request_get(
         url=api_url,
         headers=headers
     )
@@ -122,7 +137,7 @@ def post_report(auth_token, data, files):
     if IS_DEBUG:
         print('sending input to groupware with data:', data)
 
-    req = requests.post(url=LOGBOOK_API_URL, headers=headers, files=files, data=data)
+    req = request_post(url=LOGBOOK_API_URL, headers=headers, files=files, data=data)
     if IS_DEBUG:
         print('request body:', req.request.body)
 
