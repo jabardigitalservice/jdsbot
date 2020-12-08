@@ -29,7 +29,11 @@ ROOT_BOT_FILE_URL = 'https://api.telegram.org/file/bot{}'.format(TELEGRAM_TOKEN)
 def run_command(path, data=None):
     """ run a single telegram API command """
     global ROOT_BOT_URL
-    req = requests.get(url=ROOT_BOT_URL+path, json=data)
+    try:
+        req = requests.get(url=ROOT_BOT_URL+path, json=data)
+    except requests.exceptions.ConnectionError as e:
+        raise Exception('Terjadi masalah sambungan ke server telegram. Mohon coba beberapa saat lagi')
+
     if req.status_code < 300:
         return req.json()
     else:
