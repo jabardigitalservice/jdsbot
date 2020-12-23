@@ -24,24 +24,35 @@ Cara menggunakan command `/lapor`:
 
 ```
 /lapor <nama_project_di_groupware> | <nama_kegiatan>
-Peserta: <user_groupware_1> , <user_groupware_2>
+tanggal : isi dengan tanggal dengan format '1945-08-17'. Default hari ini
+kesulitan : isi dengan angka 1-5. Default 3
+penyelenggara : penyelenggara, Defaultnya 'PLD'
+tugasUtama : isi dengan true/false. Defaultnya true
+lokasi : isi lokasi mengerjakan task tersebut, defaultnya 'WFH',
+lampiran: isi dengan url lampiran. defaultnya kosong. Saat ini untuk lampiran hanya mendukung berbentuk url
+peserta: <user_digiteam_1> <user_digiteam_2>
+```
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+Contoh Reply nya sebagai berikut ya :
+
+```
+/lapor Digiteam | Experiment telegram x groupware
+tanggal: 2020-08-26
+kesulitan: 5
+penyelenggara: PLD
+tugasUtama: false
+lokasi: Command Center Jabar
+lampiran: https://groupware.digitalservice.id/#/report
+peserta: rizkiadam01 @abdurrahman_adianto @ArifWicakSon
 ```
 
-Keterangan Opsi\-Opsi:
-\- `<nama_project_di_groupware>` : isi dengan nama proyek yang ada di aplikasi digiteam groupware\. Harus persis sama besar kecil dan spasinya dengan yang ada di aplikasi digiteam groupware\.
-\- `<nama_kegiatan>` : isi dengan nama tugas yang dikerjakan di project tersebut\. bisa diisi dengan teks yang panjang\.
-\- `Peserta`: yang digunakan adalah username yang digiteam groupware\. Username groupware diambil dari username gmail yang digunakan di aplikasi digiteam groupware\, misal email `jdsitdev@gmail.com` maka username yang digunakan adalah `jdsitdev`\.
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
-Keterangan tambahan :
-\- Semua hasil input di bot telegram ini bisa di edit lagi melalui akun digiteam groupware masing2
-\- Kami sudah menyiapkan nilai default untuk Atribut lain\. Silahkan langsung dapat di sesuaikan value atribut lain ini di aplikasi groupware
-\- Saat ini kita tengah mengembangkan agar semua atribut ini dapat diisi semua via telegram
+Keterangan :
+1\. Semua atribut hasil input di bot telegram ini bisa di edit lagi melalui akun digiteam di web masing\-masing
+2\. Atribut yang wajib diisi adalah `<nama_project_di_groupware>`\, `<nama_kegiatan>` \& `<nama peserta>`\. Selain atribut tersebut optional untuk diisi
 
-Contoh Reply command:
-```
-/lapor Aplikasi SAPA JDS | Experiment telegram x groupware dari handphone
-Peserta: asepkasep
-```
 """
 
 msg['tambah'] = """
