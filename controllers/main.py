@@ -166,6 +166,11 @@ def loop_updates(updates):
             processed.append(item['message']['message_id'])
             process_telegram_input(item)
 
+def is_today_holiday():
+    """ simple wrapper for groupware.check_date_is_holiday() """
+    auth_token = user.get_user_token(os.getenv('TEST_USER'))
+    return groupware.check_date_is_holiday(auth_token)
+
 if __name__ == '__main__':
     import sys
     sleep_interval = 3 if len(sys.argv) < 2 else sys.argv[1]
