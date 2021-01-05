@@ -12,6 +12,7 @@ load_dotenv(dotenv_path=env_path)
 ROOT_API_URL = os.getenv('ROOT_API_URL')
 LOGBOOK_API_URL = ROOT_API_URL+'/logbook/'
 LOGIN_API_URL = ROOT_API_URL+'/auth/login/'
+USER_API_URL = ROOT_API_URL+'/user/'
 PROJECT_LIST_API_URL = ROOT_API_URL+'/project/?limit=200&pageSize=200'
 
 TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
@@ -82,6 +83,30 @@ def get_attendance(auth_token, date=None):
     api_url = ROOT_API_URL+'/attendance/?limit=200&pageSize=200&date={}'.format(date)
     req = request_get(
         url=api_url,
+        headers=headers
+    )
+
+    if req.status_code >= 300:
+        raise Exception('Error response: ' + req.text)
+
+    raw_response = req.json()
+    return raw_response['results']
+
+def get_users(auth_token, is_active=True, struktural=False, search=None):
+    """ get list of all users which match parameters """
+    headers = {
+        'Authorization': 'Bearer ' + auth_token,
+    }
+
+    req = request_get(
+        url=USER_API_URL,
+        params={
+            'page_size' : 300,
+            'page': 1,
+            'is_active' : 'true' if is_active else None,
+            'struktural' : 'true' if struktural else None,
+            'search' : search,
+        },
         headers=headers
     )
 

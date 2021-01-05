@@ -15,7 +15,7 @@ def action_cekabsensi(telegram_item):
         if not row[3]:
             attendance_msg += "{}. {} ({})\n".format(
                 row_num,
-                row[0],
+                row[1],
                 row[2]
             )
 
