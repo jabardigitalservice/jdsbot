@@ -53,7 +53,7 @@ def set_alias(username, new_alias):
         return (False, 'Alias already exists')
 
     query_find_user = """
-        SELECT *
+        SELECT username
         FROM users
         WHERE username = :username"""
     res_find_user = db.execute(
