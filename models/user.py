@@ -65,11 +65,11 @@ def set_alias(username, new_alias):
         query_update = """
             INSERT INTO users
             (username, alias, password)
-            VALUES(:alias, :username, :password)"""
+            VALUES(:username, :alias, :password)"""
         res = db.execute(
             query_update, {
-                'alias':new_alias,
                 'username':username,
+                'alias':new_alias,
                 'password':username,
             }, once=True)
     else:
