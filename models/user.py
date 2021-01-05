@@ -62,17 +62,26 @@ def set_alias(username, new_alias):
         once=True).fetchall()
     print('res_find_user', res_find_user)
     if len(res_find_user) < 1:
-        return (False, 'User not found')
-
-    query_update = """
-        UPDATE users
-        SET alias = :alias
-        WHERE username = :username"""
-    res = db.execute(
-        query_update, {
-            'alias':new_alias,
-            'username':username
-        }, once=True)
+        query_update = """
+            INSERT INTO users
+            (username, alias, password)
+            VALUES(:alias, :username, :password)"""
+        res = db.execute(
+            query_update, {
+                'alias':new_alias,
+                'username':username,
+                'password':username,
+            }, once=True)
+    else:
+        query_update = """
+            UPDATE users
+            SET alias = :alias
+            WHERE username = :username"""
+        res = db.execute(
+            query_update, {
+                'alias':new_alias,
+                'username':username
+            }, once=True)
 
     load_user_data()
     return (True, 'success')
