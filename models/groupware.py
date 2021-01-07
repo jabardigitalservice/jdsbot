@@ -152,8 +152,9 @@ def check_date_is_holiday(auth_token, date=None):
         return False
 
     return date in [
-        datetime.strptime(i, '%Y-%m-%dT%H:%M:%SZ').date()
-        for i in raw_response['results']
+        datetime.datetime.strptime(i['holiday_date'], '%Y-%m-%dT%H:%M:%SZ').date()
+        for i in 
+        raw_response['results']
     ]
 
 def validate_report(raw_data):
