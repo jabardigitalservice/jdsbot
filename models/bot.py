@@ -132,8 +132,12 @@ def process_report(telegram_item, input_fields, image_data, peserta=None, save_h
         if field in fields:
             fields[field_aliases[field]] = fields[field]
 
+    default_date_task = datetime.fromtimestamp(telegram_item['message']['date']) \
+                  if telegram_item['message']['date'] else \
+                  datetime.now()
+                  
     defaults_values = {
-        'dateTask' : datetime.now().strftime('%Y-%m-%d'),
+        'dateTask' : default_date_task.strftime('%Y-%m-%d'),
         'difficultyTask': 3,
         'organizerTask' : 'PLD',
         'isMainTask' : 'true',
