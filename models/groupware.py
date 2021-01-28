@@ -153,7 +153,7 @@ def check_date_is_holiday(auth_token, date=None):
 
     return date in [
         datetime.datetime.strptime(i['holiday_date'], '%Y-%m-%dT%H:%M:%SZ').date()
-        for i in 
+        for i in
         raw_response['results']
     ]
 
@@ -195,6 +195,10 @@ def post_report(auth_token, data, files):
     data['projectName'] = data['projectName'].lower()
     data['projectId'] = PROJECT_LIST[data['projectName']]['id']
     data['projectName'] = PROJECT_LIST[data['projectName']]['originalName'] # replace projectName with original name
+
+    # 'difficultyTask' column is no longer used by groupware API
+    if 'difficultyTask' in data:
+        del data['difficultyTask']
 
     headers = {
         'Authorization': 'Bearer ' + auth_token,
