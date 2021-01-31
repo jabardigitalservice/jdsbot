@@ -5,6 +5,7 @@ import os
 import datetime
 from pathlib import Path
 
+import requests
 import sqlalchemy
 from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent /  '.env'
@@ -16,6 +17,8 @@ import models.groupware as groupware
 # global variables to store user data
 PASSWORD = {}
 ALIAS = {}
+
+DAYOFF_SCHEDULE_URL = os.getenv('DAYOFF_SCHEDULE_URL')
 
 def create_table():
     DB_META = sqlalchemy.MetaData()
@@ -114,6 +117,10 @@ def get_users_attendance(date=None):
         groupware.get_attendance(auth_token, date)
     ]
 
+    r = requests.get(DAYOFF_SCHEDULE_URL).json()
+    today = datetime.datetime.today().weekday()
+    today_dayoff_schedule = r[today] if today in r else []
+
     results= []
     for item in groupware.get_users(auth_token, is_active=True, struktural=False):
         username = item['username']
@@ -122,7 +129,9 @@ def get_users_attendance(date=None):
                 username,
                 item['fullname'],
                 ALIAS_INV[username],
-                username in attendance_list,
+                (username in attendance_list) or \
+                (username in today_dayoff_schedule) or \
+                (ALIAS_INV[username] in today_dayoff_schedule),
             ])
 
     return results
