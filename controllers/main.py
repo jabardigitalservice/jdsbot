@@ -13,6 +13,7 @@ import models.bot as bot
 import models.user as user
 import models.db as db
 import models.chat_history as chat_history
+import models.analytic as analytic
 import controllers.checkin as checkin
 import controllers.checkout as checkout
 import controllers.lapor as lapor
@@ -147,6 +148,7 @@ def process_telegram_input(item):
         return None
 
     try:
+        analytic.log_command_call(command)
         res = available_commands[command](item)
     except Exception as e:
         bot.process_error(item, e)
