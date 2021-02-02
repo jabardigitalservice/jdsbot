@@ -1,4 +1,4 @@
-""" Model for table user 
+""" Model for table user
 Currently only support MySQL
 """
 import os
@@ -20,11 +20,11 @@ ALIAS = {}
 def create_table():
     DB_META = sqlalchemy.MetaData()
     USER_TABLE_DEFINITION = sqlalchemy.Table(
-       'users', DB_META, 
-       sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
-       sqlalchemy.Column('username', sqlalchemy.String(100)), 
-       sqlalchemy.Column('password', sqlalchemy.String(100)), 
-       sqlalchemy.Column('alias', sqlalchemy.String(100)), 
+       'users', DB_META,
+       sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True),
+       sqlalchemy.Column('username', sqlalchemy.String(100)),
+       sqlalchemy.Column('password', sqlalchemy.String(100)),
+       sqlalchemy.Column('alias', sqlalchemy.String(100)),
     )
     DB_META.create_all(db.get_engine())
 
@@ -39,9 +39,9 @@ def load_user_data():
 
     USER_LIST = get_user_list()
     PASSWORD = { row[0]:row[1] for row in USER_LIST }
-    ALIAS = { 
-        row[2].lower():row[0] 
-        for row in USER_LIST 
+    ALIAS = {
+        row[2].lower():row[0]
+        for row in USER_LIST
         if row[2] is not None and len(row[2]) > 0
     }
 
@@ -53,26 +53,35 @@ def set_alias(username, new_alias):
         return (False, 'Alias already exists')
 
     query_find_user = """
-        SELECT * 
-        FROM users 
+        SELECT username
+        FROM users
         WHERE username = :username"""
     res_find_user = db.execute(
-        query_find_user,  
+        query_find_user,
         {'username':username},
         once=True).fetchall()
     print('res_find_user', res_find_user)
     if len(res_find_user) < 1:
-        return (False, 'User not found')
-
-    query_update = """
-        UPDATE users 
-        SET alias = :alias 
-        WHERE username = :username"""
-    res = db.execute(
-        query_update, {
-            'alias':new_alias, 
-            'username':username
-        }, once=True)
+        query_update = """
+            INSERT INTO users
+            (username, alias, password)
+            VALUES(:username, :alias, :password)"""
+        res = db.execute(
+            query_update, {
+                'username':username,
+                'alias':new_alias,
+                'password':username,
+            }, once=True)
+    else:
+        query_update = """
+            UPDATE users
+            SET alias = :alias
+            WHERE username = :username"""
+        res = db.execute(
+            query_update, {
+                'alias':new_alias,
+                'username':username
+            }, once=True)
 
     load_user_data()
     return (True, 'success')
@@ -99,27 +108,21 @@ def get_users_attendance(date=None):
     auth_token = get_user_token(os.getenv('TEST_USER'))
     ALIAS_INV = {v:k for k, v in ALIAS.items()}
 
-    attendance_list = groupware.get_attendance(auth_token, date)
-    attendance_list = {
-        row['username'] : row['fullname']
-        for row in attendance_list
-    }
+    attendance_list = [
+        row['username']
+        for row in
+        groupware.get_attendance(auth_token, date)
+    ]
 
     results= []
-    for username in PASSWORD:
-        if username in attendance_list:
+    for item in groupware.get_users(auth_token, is_active=True, struktural=False):
+        username = item['username']
+        if username in PASSWORD :
             results.append([
                 username,
-                attendance_list[username],
+                item['fullname'],
                 ALIAS_INV[username],
-                True,
-            ])
-        else:
-            results.append([
-                username,
-                None,
-                ALIAS_INV[username],
-                False,
+                username in attendance_list,
             ])
 
     return results

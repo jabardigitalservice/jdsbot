@@ -1,0 +1,12 @@
+version: "2"
+checks:
+  similar-code:
+    enabled: true
+    config:
+      languages:
+      - python
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - python

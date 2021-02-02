@@ -12,6 +12,8 @@ load_dotenv(dotenv_path=env_path)
 ROOT_API_URL = os.getenv('ROOT_API_URL')
 LOGBOOK_API_URL = ROOT_API_URL+'/logbook/'
 LOGIN_API_URL = ROOT_API_URL+'/auth/login/'
+USER_API_URL = ROOT_API_URL+'/user/'
+HOLIDAY_LIST_API_URL = ROOT_API_URL+'/holiday-date/list'
 PROJECT_LIST_API_URL = ROOT_API_URL+'/project/?limit=200&pageSize=200'
 
 TIMESTAMP_TRAIL_FORMAT = 'T00:00:00.000Z'
@@ -91,6 +93,70 @@ def get_attendance(auth_token, date=None):
     raw_response = req.json()
     return raw_response['results']
 
+def get_users(auth_token, is_active=True, struktural=False, search=None):
+    """ get list of all users which match parameters """
+    headers = {
+        'Authorization': 'Bearer ' + auth_token,
+    }
+
+    req = request_get(
+        url=USER_API_URL,
+        params={
+            'page_size' : 300,
+            'page': 1,
+            'is_active' : 'true' if is_active else None,
+            'struktural' : 'true' if struktural else None,
+            'search' : search,
+        },
+        headers=headers
+    )
+
+    if req.status_code >= 300:
+        raise Exception('Error response: ' + req.text)
+
+    raw_response = req.json()
+    return raw_response['results']
+
+def check_date_is_holiday(auth_token, date=None):
+    """ check the given date is a holiday
+
+    Params
+    ------
+    auth_token: string
+    date: datetime.date object|None
+        date to check. default to today
+    """
+    if date is None:
+        date = datetime.date.today()
+
+    headers = {
+        'Authorization': 'Bearer ' + auth_token,
+    }
+
+    req = request_get(
+        url=HOLIDAY_LIST_API_URL,
+        params={
+            'limit' : 300,
+            'page': 1,
+            'year' : date.year,
+        },
+        headers=headers
+    )
+
+    if req.status_code >= 300:
+        raise Exception('Error response: ' + req.text)
+
+    raw_response = req.json()
+
+    if raw_response['results'] is None:
+        return False
+
+    return date in [
+        datetime.datetime.strptime(i['holiday_date'], '%Y-%m-%dT%H:%M:%SZ').date()
+        for i in
+        raw_response['results']
+    ]
+
 def validate_report(raw_data):
     """ Validate report data
     Returns
@@ -129,6 +195,10 @@ def post_report(auth_token, data, files):
     data['projectName'] = data['projectName'].lower()
     data['projectId'] = PROJECT_LIST[data['projectName']]['id']
     data['projectName'] = PROJECT_LIST[data['projectName']]['originalName'] # replace projectName with original name
+
+    # 'difficultyTask' column is no longer used by groupware API
+    if 'difficultyTask' in data:
+        del data['difficultyTask']
 
     headers = {
         'Authorization': 'Bearer ' + auth_token,

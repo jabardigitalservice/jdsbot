@@ -31,6 +31,10 @@ async def process_telegram(request: Request, background_tasks: BackgroundTasks, 
 async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token=None):
     verify_token(token)
 
+    # if today is a holiday, skip
+    if main_controller.is_today_holiday():
+        return 'ok'
+
     data = {
         'message' : {
             'chat': {

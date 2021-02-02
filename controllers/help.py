@@ -81,6 +81,14 @@ Cara menggunakan command `/checkout`:
 ```
 """
 
+msg['setalias'] = """
+Cara menggunakan command `/setalias`:
+
+```
+/checkin <username groupware> | <alias>
+```
+"""
+
 msg['listproject'] = """
 Cara menggunakan command `/listproject`:
 
