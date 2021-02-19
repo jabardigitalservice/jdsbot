@@ -199,6 +199,8 @@ def post_report(auth_token, data, files):
     # 'difficultyTask' column is no longer used by groupware API
     if 'difficultyTask' in data:
         del data['difficultyTask']
+    if 'isMainTask' in data:
+        del data['isMainTask']
 
     headers = {
         'Authorization': 'Bearer ' + auth_token,
