@@ -21,21 +21,36 @@ def action_cekabsensi(telegram_item):
 
             row_num += 1
 
-    msg = """#INFOABSENSI
+    if (len(attendance_msg) > 1):
+        msg = """#INFOABSENSI
 Halo DigiTeam! Presensi kehadiran dan laporan harianmu adalah tanggung jawab sekaligus syarat untuk administrasi penggajian.
 
-Berikut nama yang belum Check In hari ini ({}/{}).
+Berikut nama-nama yang belum Check In hari ini ({}/{}).
 
 {}
 
 Yuk, maksimalkan aplikasi DigiTeam untuk mudahkan pekerjaanmu!
 
 Semangat dan sehat selalu! Hatur nuhun!
-""".format(
-        now.strftime('%d-%m-%Y'),
-        now.strftime('%H:%M'),
-        attendance_msg
-    )
+    """.format(
+            now.strftime('%d-%m-%Y'),
+            now.strftime('%H:%M'),
+            attendance_msg
+        )
+    else:
+        msg = """#INFOABSENSI
+Seluruh DigiTeam sudah mengisi presensi!
+
+Menurut data per ({}/{}), seluruhnya dari {} orang sudah mengisi presensi. Ayo pertahankan!
+
+Yuk, maksimalkan aplikasi DigiTeam untuk mudahkan pekerjaanmu!
+
+Semangat dan sehat selalu! Hatur nuhun!
+    """.format(
+            now.strftime('%d-%m-%Y'),
+            now.strftime('%H:%M'),
+            len(attendance_list)
+        )
 
     return bot.reply_message(telegram_item, msg)
 
