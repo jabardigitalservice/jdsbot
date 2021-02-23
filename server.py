@@ -8,6 +8,7 @@ app = FastAPI()
 
 import controllers.main as main_controller
 import controllers.cekabsensi as cekabsensi
+import controllers.healthcheck as healthcheck
 main_controller.setup()
 
 def verify_token(token):
@@ -17,7 +18,7 @@ def verify_token(token):
 
 @app.get('/')
 def index():
-    return "ok"
+    return healthcheck.run()
 
 @app.post('/telegram/{token}')
 async def process_telegram(request: Request, background_tasks: BackgroundTasks, token=None):
