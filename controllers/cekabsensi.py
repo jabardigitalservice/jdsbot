@@ -39,16 +39,12 @@ Semangat dan sehat selalu! Hatur nuhun!
         )
     else:
         msg = """#INFOABSENSI
-Seluruh DigiTeam sudah mengisi presensi!
 
-Menurut data per ({}/{}), seluruhnya dari {} orang sudah mengisi presensi. Ayo pertahankan!
+Yeaaay, Presensi hari ini ({}) sudah lengkap. Sebanyak {} orang sudah mengisi presensi hari ini.
 
-Yuk, maksimalkan aplikasi DigiTeam untuk mudahkan pekerjaanmu!
-
-Semangat dan sehat selalu! Hatur nuhun!
+Terimakasih banyak sebesar-besarnya buat dedikasi dan kontribusi digiteam semua untuk mengakselerasi digitalisasi di JawaBarat. Tetap Jaga Iman, Imun & Aman ya guys  🥳🥳🥳
     """.format(
             now.strftime('%d-%m-%Y'),
-            now.strftime('%H:%M'),
             len(attendance_list)
         )
 
