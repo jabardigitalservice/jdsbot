@@ -10,6 +10,7 @@ env_path = Path(__file__).parent.parent /  '.env'
 load_dotenv(dotenv_path=env_path)
 
 ROOT_API_URL = os.getenv('ROOT_API_URL')
+PING_API_URL = ROOT_API_URL+'/healthcheck/'
 LOGBOOK_API_URL = ROOT_API_URL+'/logbook/'
 LOGIN_API_URL = ROOT_API_URL+'/auth/login/'
 USER_API_URL = ROOT_API_URL+'/user/'
@@ -220,6 +221,25 @@ def post_report(auth_token, data, files):
         return raw_response
     else:
         raise Exception('Error response: ' + req.text)
+
+def is_groupware_api_reachable():
+    """ check groupware api is connected
+
+    Return
+    ------
+    ok: bool
+    error_message: string|None
+    """
+
+    try:
+        req = request_get(url=PING_API_URL)
+
+        if req.status_code < 300:
+            return (True, None)
+        else:
+            return (False, req.text)
+    except Exception as e:
+        return False, str(e)
 
 if __name__ == '__main__':
     TEST_USER = os.getenv('TEST_USER', 'testuser')
