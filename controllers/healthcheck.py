@@ -19,7 +19,7 @@ def run():
             'ok': db_status[0],
             'message': db_status[1],
         },
-        'grouware_api': {
+        'groupware_api': {
             'ok': groupware_api_status[0],
             'message': groupware_api_status[1],
         },
