@@ -68,10 +68,9 @@ daftar peserta dipisahkan dengan spasi atau koma
 msg['checkin'] = """
 Cara menggunakan command `/checkin`:
 ```
-/checkin <username atau alias> | <jenis kehadiran>
+/checkin <username atau alias> | <lokasi>
 ```
-Catatan
-1\. Untuk jenis kehadiran hanya bisa hadir saja
+contoh: `/checkin @fulan | WFH`
 """
 
 msg['checkout'] = """
@@ -85,7 +84,7 @@ msg['setalias'] = """
 Cara menggunakan command `/setalias`:
 
 ```
-/checkin <username groupware> | <alias>
+/setalias <username groupware> | <alias baru>
 ```
 """
 

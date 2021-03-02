@@ -1,4 +1,4 @@
-""" Model for table user 
+""" Model for table user
 Currently only support MySQL
 """
 import os
@@ -15,14 +15,14 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 # ONLY FOR MYSQL
 db_meta = sqlalchemy.MetaData()
 USER_TABLE_DEFINITION = sqlalchemy.Table(
-   'users', db_meta, 
-   sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True), 
-   sqlalchemy.Column('username', sqlalchemy.String(100)), 
-   sqlalchemy.Column('password', sqlalchemy.String(100)), 
-   sqlalchemy.Column('alias', sqlalchemy.String(100)), 
+   'users', db_meta,
+   sqlalchemy.Column('id', sqlalchemy.Integer, primary_key = True),
+   sqlalchemy.Column('username', sqlalchemy.String(100)),
+   sqlalchemy.Column('password', sqlalchemy.String(100)),
+   sqlalchemy.Column('alias', sqlalchemy.String(100)),
 )
 
-# global variables 
+# global variables
 ENGINE=None
 CONNECTION=None
 
@@ -54,7 +54,7 @@ def execute(raw_query, args=None, once=False):
     Params
     ------
     once: bool
-        execute with on-time connection 
+        execute with on-time connection
     """
     query = sqlalchemy.text(raw_query)
 
@@ -66,4 +66,19 @@ def execute(raw_query, args=None, once=False):
 
     conn.commit()
     conn.close()
+
+def is_db_connected():
+    """ check database is connected
+
+    Return
+    ------
+    ok: bool
+    error_message: string|None
+    """
+
+    try:
+        res = db_exec('select True as is_alive').fetchone()
+        return res['is_alive'] == 1, None
+    except Exception as e:
+        return False, str(e)
 
