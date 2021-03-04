@@ -11,7 +11,7 @@ def run():
     try:
         db_status = db.is_db_connected()
         groupware_api_status = groupware.is_groupware_api_reachable()
-        telegram_status = bot.run_command('/getwebhookinfo')
+        telegram_status = bot.get_webhook_status()
 
         return {
             'webserver': {

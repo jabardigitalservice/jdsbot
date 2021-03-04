@@ -215,3 +215,19 @@ def process_error(telegram_item, e):
     msg = str(e)
     print('error:', msg)
     return reply_message(telegram_item, 'Error: '+msg, is_direct_reply=True)
+
+def get_webhook_status():
+    """ check telegram api is connected
+
+    Return
+    ------
+    ok: bool
+    result: string|None
+    """
+    try:
+        return run_command('/getwebhookinfo')
+    except Exception as e:
+        return {
+            'ok': False,
+            'result': str(e),
+        }
