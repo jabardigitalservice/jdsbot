@@ -32,7 +32,7 @@ def run():
             },
         }
     except Exception as e:
-        raise HTTPException(status_code=500, message=json.dumps({
+        raise HTTPException(status_code=500, detail=json.dumps({
             'err_msg': str(e),
             'traceback': traceback.format_exc(),
         }))
