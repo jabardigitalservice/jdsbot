@@ -94,6 +94,22 @@ Cara menggunakan command `/listproject`:
 Cukup panggil command `/listproject`
 """
 
+msg['cekabsensi'] = """
+Cara menggunakan command `/cekabsensi`:
+
+```
+/cekabsensi <nama divisi>
+```
+nama divisi boleh kosong atau salah satu yang ada di bawah:
+\- itdev
+\- data
+\- implementasi
+\- analisis
+\- komunikasi
+
+nama divisi boleh huruf besar maupun kecil
+"""
+
 def action_help(telegram_item):
     """ action for /help command """
     input_words = telegram_item['message']['text'].split(' ')

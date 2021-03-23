@@ -10,6 +10,17 @@ def action_cekabsensi(telegram_item):
     attendance_list = user.get_users_attendance(now.strftime('%Y-%m-%d'))
     attendance_msg = ''
 
+    divisi = None
+    input_data = telegram_item['message']['text'].strip().split(' ')
+    if len(input_data) > 1 :
+        divisi = input_data[1].lower()
+        attendance_list = [
+            row
+            for row
+            in attendance_list
+            if row[4][:2].lower() == divisi[:2]
+        ]
+
     row_num = 1
     for row in sorted(attendance_list):
         if not row[3]:
@@ -22,7 +33,7 @@ def action_cekabsensi(telegram_item):
             row_num += 1
 
     if (len(attendance_msg) > 1):
-        msg = """#INFOABSENSI
+        msg = """
 Halo DigiTeam! Presensi kehadiran dan laporan harianmu adalah tanggung jawab sekaligus syarat untuk administrasi penggajian.
 
 Berikut nama-nama yang belum Check In hari ini ({}/{}).
@@ -38,7 +49,7 @@ Semangat dan sehat selalu! Hatur nuhun!
             attendance_msg
         )
     else:
-        msg = """#INFOABSENSI
+        msg = """
 
 Yeaaay, presensi hari ini ({}) sudah lengkap! {} orang sudah mengisi presensi hari ini.
 
@@ -47,6 +58,11 @@ Terima kasih banyak buat dedikasi dan kontribusi Digiteam semua untuk mengaksele
             now.strftime('%d-%m-%Y'),
             len(attendance_list)
         )
+
+    if divisi is None:
+        msg = "#INFOABSENSI" + msg
+    else:
+        msg = f"#INFOABSENSI DIVISI {divisi.upper()}" + msg
 
     return bot.reply_message(telegram_item, msg)
 
