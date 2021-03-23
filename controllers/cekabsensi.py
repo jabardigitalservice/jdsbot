@@ -11,7 +11,9 @@ def action_cekabsensi(telegram_item):
     attendance_msg = ''
 
     divisi = None
-    input_data = telegram_item['message']['text'].strip().split(' ')
+    input_data = telegram_item['message']['text'].strip().split(' ') \
+                 if 'text' in telegram_item['message'] \
+                 else []
     if len(input_data) > 1 :
         divisi = input_data[1].lower()
         attendance_list = [
