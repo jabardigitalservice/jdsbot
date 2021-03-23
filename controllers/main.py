@@ -42,9 +42,17 @@ def action_about(telegram_item):
 def action_whatsnew(telegram_item):
     """ action for /whatsnew command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
-    msg = """Update per 25 September 2020:
-\- Beberapa perubahan pesan error untuk peserta yang kosong dan salah format
-\- Command baru `/tambah` untuk menambahkan peserta di laporan yang sudah disubmit
+    msg = """\#UPDATERILIS
+Per tanggal 23 Maret 2021, kamu bisa menggunakan command terbaru yaitu
+
+`/cekabsensi <nama divisi>`
+
+untuk nama divisi dapat diisi dengan pilih salah satu dari daftar yang ada di bawah:
+\- itdev
+\- data
+\- implementasi
+\- analisis
+\- komunikasi
 """
     return bot.reply_message(telegram_item, msg, is_markdown=True)
 
