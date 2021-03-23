@@ -108,11 +108,11 @@ def get_users_attendance(date=None):
     auth_token = get_user_token(os.getenv('TEST_USER'))
     ALIAS_INV = {v:k for k, v in ALIAS.items()}
 
-    attendance_list = {
-        row['username'] : row['divisi']
+    attendance_list = [
+        row['username']
         for row in
         groupware.get_attendance(auth_token, date)
-    }
+    ]
 
     results= []
     for item in groupware.get_users(auth_token, is_active=True, struktural=False):
@@ -123,7 +123,7 @@ def get_users_attendance(date=None):
                 item['fullname'],
                 ALIAS_INV[username],
                 username in attendance_list,
-                attendance_list[username] if username in attendance_list else "",
+                item['divisi'],
             ])
 
     return results
