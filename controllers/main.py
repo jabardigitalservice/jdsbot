@@ -19,6 +19,7 @@ import controllers.lapor as lapor
 import controllers.tambah as tambah
 import controllers.setalias as setalias
 import controllers.cekabsensi as cekabsensi
+import controllers.ulangtahun as ulangtahun
 from controllers.help import action_help
 
 processed=[]
@@ -136,6 +137,7 @@ def process_telegram_input(item):
         '/ngobrol' : action_ngobrol,
         '/checkin' : checkin.action_checkin,
         '/checkout' : checkout.action_checkout,
+        '/ulangtahun' : ulangtahun.action,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':

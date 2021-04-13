@@ -128,3 +128,28 @@ def get_users_attendance(date=None):
 
     return results
 
+def get_users_by_birthday(compare_date):
+    """
+    Params
+    ------
+    compare_date: date or datetime instance
+    """
+    global ALIAS
+
+    auth_token = get_user_token(os.getenv('TEST_USER'))
+    ALIAS_INV = {v:k for k, v in ALIAS.items()}
+    list_birthday = []
+
+    for item in groupware.get_users(auth_token, is_active=True, struktural=False):
+        birthday = datetime.datetime.strptime(item['birth_date'], '%Y-%m-%d')
+        username = item['username']
+
+        if birthday.month == compare_date.month and birthday.day == compare_date.day :
+            list_birthday.append([
+                item['fullname'],
+                item['divisi'] ,
+                ALIAS_INV[username] if username in ALIAS_INV else None,
+            ])
+
+    return list_birthday
+
