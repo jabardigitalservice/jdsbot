@@ -10,6 +10,7 @@ def run():
     groupware_api_status = groupware.is_groupware_api_reachable()
     telegram_status = bot.run_command('/getwebhookinfo')
     telegram_status['result']['url'] = '--REDACTED--' # censor actual URL
+    telegram_status['result']['ip_address'] = '--REDACTED--' # censor actual ip address
 
     return {
         'webserver': {
