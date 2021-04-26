@@ -46,3 +46,17 @@ async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token
     background_tasks.add_task(cekabsensi.action_cekabsensi, data)
     return 'ok'
 
+@app.post('/ulangtahun/{token}')
+async def ulangtahun(request: Request, background_tasks: BackgroundTasks, token=None):
+    verify_token(token)
+
+    data = {
+        'message' : {
+            'chat': {
+                'id': os.getenv('MAIN_CHAT_ID')
+            }
+        }
+    }
+    background_tasks.add_task(cekabsensi.action_cekabsensi, data)
+    return 'ok'
+

@@ -19,6 +19,7 @@ import controllers.lapor as lapor
 import controllers.tambah as tambah
 import controllers.setalias as setalias
 import controllers.cekabsensi as cekabsensi
+import controllers.ulangtahun as ulangtahun
 from controllers.help import action_help
 
 processed=[]
@@ -43,16 +44,11 @@ def action_whatsnew(telegram_item):
     """ action for /whatsnew command """
     # banyak karakter yang perlu di escape agar lolos parsing markdown di telegram. ref: https://core.telegram.org/bots/api#markdownv2-style
     msg = """\#UPDATERILIS
-Per tanggal 23 Maret 2021, kamu bisa menggunakan command terbaru yaitu
+Per tanggal 27 April 2021, kamu bisa menggunakan command terbaru yaitu
 
-`/cekabsensi <nama divisi>`
+/ulangtahun
 
-untuk nama divisi dapat diisi dengan pilih salah satu dari daftar yang ada di bawah:
-\- itdev
-\- data
-\- implementasi
-\- analisis
-\- komunikasi
+Untuk mengetahui karyawan JDS yang ulang tahun hari ini. Command ini pun akan otomatis muncul setiap harinya melalui bantuan bot digiteam.
 """
     return bot.reply_message(telegram_item, msg, is_markdown=True)
 
@@ -136,6 +132,7 @@ def process_telegram_input(item):
         '/ngobrol' : action_ngobrol,
         '/checkin' : checkin.action_checkin,
         '/checkout' : checkout.action_checkout,
+        '/ulangtahun' : ulangtahun.action,
     }
     command = input_text.split(' ', maxsplit=1)[0].strip()
     if command[0] != '/':

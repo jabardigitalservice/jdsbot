@@ -12,6 +12,8 @@ def run():
         db_status = db.is_db_connected()
         groupware_api_status = groupware.is_groupware_api_reachable()
         telegram_status = bot.get_webhook_status()
+        telegram_status['result']['url'] = '--REDACTED--' # censor actual URL
+        telegram_status['result']['ip_address'] = '--REDACTED--' # censor actual ip address
 
         return {
             'webserver': {
@@ -36,5 +38,4 @@ def run():
             'err_msg': str(e),
             'traceback': traceback.format_exc(),
         }))
-
 

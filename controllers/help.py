@@ -11,8 +11,10 @@ msg['default'] = """Command\-command yang tersedia:
 \- `/setalias` : Mengubah alias username telegram untuk salah satu username DigiTeam
 \- `/listproject` : Menampilkan list semua project yang ada di DigiTeam saat ini
 \- `/cekabsensi` : Menampilkan daftar user yang belum check\-in di groupware hari ini
+\- `/cekabsensi <nama divisi>` : Menampilkan daftar user yang belum checkin sesuai divisi tertentu
 \- `/checkin` : Untuk melakukan absensi
 \- `/checkout` : Untuk melakukan checkout absensi
+\- `/ulangtahun` : Menampilkan daftar nama karyawan JDS yang berulang tahun di hari ini
 
 Untuk mendapatkan bantuan detail dari command\-command di atas, silahkan gunakan command `/help <nama_command` \. contoh: `/help lapor`
 """
