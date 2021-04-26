@@ -9,6 +9,7 @@ def run():
     db_status = db.is_db_connected()
     groupware_api_status = groupware.is_groupware_api_reachable()
     telegram_status = bot.run_command('/getwebhookinfo')
+    telegram_status['result']['url'] = '--REDACTED--' # censor actual URL
 
     return {
         'webserver': {
