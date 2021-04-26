@@ -46,9 +46,9 @@ def action_whatsnew(telegram_item):
     msg = """\#UPDATERILIS
 Per tanggal 27 April 2021, kamu bisa menggunakan command terbaru yaitu
 
-/ulangtahun
+`/ulangtahun`
 
-Untuk mengetahui karyawan JDS yang ulang tahun hari ini. Command ini pun akan otomatis muncul setiap harinya melalui bantuan bot digiteam.
+Untuk mengetahui karyawan JDS yang ulang tahun hari ini\. Command ini pun akan otomatis muncul setiap harinya melalui bantuan bot digiteam\.
 """
     return bot.reply_message(telegram_item, msg, is_markdown=True)
 
