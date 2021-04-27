@@ -4,7 +4,7 @@ import random
 import models.bot as bot
 import models.user as user
 
-pantun = [
+msg_ulangtahun = [
 """Sakitnya parah digigit lebah
 Obatnya luka dikasih madu
 Tak ada kata yang lebih indah
@@ -45,30 +45,39 @@ Ya, Hidup adalah tentang legacy""",
 """Jangan pernah ada kata putus asa dan menyerah. Temukan ratusan bahkan ribuan alasan untuk terus berjuang. Selamat naik level kawanku, See you on Top""",
 ]
 
+msg_no_ulangtahun = [
+"Hari ini gak ada yang ulangtahun euy. Coba lagi lain waktu yaaa",
+"Hari ini slot ulang tahun kosong nih, ada yang mau isi ga?",
+]
 
 def action(telegram_item):
     """ action for /ulangtahun command """
     now = datetime.now()
 
-    list_msg = "\n".join([
-        str(idx+1) + \
-            f". {item[0]}" + \
-            (f"({item[2]})" if item[2] is not None else "") + \
-            f" - {item[1]}"
-        for idx, item
-        in enumerate(user.get_users_by_birthday(now))
-    ])
+    list_ulangtahun = user.get_users_by_birthday(now)
 
-    msg = """"{}"
+    if len(list_ulangtahun) > 0:
+        list_msg = "\n".join([
+            str(idx+1) + \
+                f". {item[0]}" + \
+                (f"({item[2]})" if item[2] is not None else "") + \
+                f" - {item[1]}"
+            for idx, item
+            in enumerate(list_ulangtahun)
+        ])
 
-Yeaaay, Happy Anniversary hari ini ({}) buat :
-{}
+        msg = """"{}"
 
-Semoga sehat selalu, dimudahkan rezekinya, dilancarkan setiap urusannya, dan semakin ngabreet. Wish you all the best 🥳🎂❤️
-    """.format(
-            random.choice(pantun),
-            now.strftime('%d-%m-%Y'),
-            list_msg,
-        )
+    Yeaaay, Happy Anniversary hari ini ({}) buat :
+    {}
+
+    Semoga sehat selalu, dimudahkan rezekinya, dilancarkan setiap urusannya, dan semakin ngabreet. Wish you all the best 🥳🎂❤️
+        """.format(
+                random.choice(msg_ulangtahun),
+                now.strftime('%d-%m-%Y'),
+                list_msg,
+            )
+    else:
+        msg = random.choice(msg_no_ulangtahun)
 
     return bot.reply_message(telegram_item,  msg)
