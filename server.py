@@ -9,6 +9,7 @@ app = FastAPI()
 import controllers.main as main_controller
 import controllers.cekabsensi as cekabsensi
 import controllers.healthcheck as healthcheck
+import controllers.ulangtahun as ulangtahun
 main_controller.setup()
 
 def verify_token(token):
@@ -47,7 +48,7 @@ async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token
     return 'ok'
 
 @app.post('/ulangtahun/{token}')
-async def ulangtahun(request: Request, background_tasks: BackgroundTasks, token=None):
+async def ulang_tahun(request: Request, background_tasks: BackgroundTasks, token=None):
     verify_token(token)
 
     data = {
@@ -57,6 +58,6 @@ async def ulangtahun(request: Request, background_tasks: BackgroundTasks, token=
             }
         }
     }
-    background_tasks.add_task(cekabsensi.action_cekabsensi, data)
+    background_tasks.add_task(ulangtahun.action, data)
     return 'ok'
 
