@@ -48,7 +48,7 @@ async def cek_absensi(request: Request, background_tasks: BackgroundTasks, token
     return 'ok'
 
 @app.post('/ulangtahun/{token}')
-async def ulangtahun(request: Request, background_tasks: BackgroundTasks, token=None):
+async def ulang_tahun(request: Request, background_tasks: BackgroundTasks, token=None):
     verify_token(token)
 
     data = {
