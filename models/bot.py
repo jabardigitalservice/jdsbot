@@ -143,7 +143,7 @@ def process_report(telegram_item, input_fields, image_data, peserta=None, save_h
         'isMainTask' : 'null',
         'isDocumentLink' : 'true',
         'workPlace' : 'WFH',
-        'documentTask': 'null',
+        'documentTask': '',
     }
     for field in defaults_values:
         if field not in fields:
