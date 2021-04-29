@@ -58,6 +58,6 @@ async def ulang_tahun(request: Request, background_tasks: BackgroundTasks, token
             }
         }
     }
-    background_tasks.add_task(ulangtahun.action, data)
+    background_tasks.add_task(ulangtahun.action, data, display_on_empty=False)
     return 'ok'
 
