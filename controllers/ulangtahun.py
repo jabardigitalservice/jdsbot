@@ -45,12 +45,9 @@ Ya, Hidup adalah tentang legacy""",
 """Jangan pernah ada kata putus asa dan menyerah. Temukan ratusan bahkan ribuan alasan untuk terus berjuang. Selamat naik level kawanku, See you on Top""",
 ]
 
-msg_no_ulangtahun = [
-"Hari ini gak ada yang ulangtahun euy. Coba lagi lain waktu yaaa",
-"Hari ini slot ulang tahun kosong nih, ada yang mau isi ga?",
-]
+msg_no_ulangtahun = "Hari ini lagi ga ada yang ulang tahun nih, Kita doa bersama biar kita senantiasa diberkati dan sehat selalu ya."
 
-def action(telegram_item):
+def action(telegram_item, display_on_empty=True):
     """ action for /ulangtahun command """
     now = datetime.now()
 
@@ -77,7 +74,10 @@ def action(telegram_item):
                 now.strftime('%d-%m-%Y'),
                 list_msg,
             )
+        return bot.reply_message(telegram_item,  msg)
     else:
-        msg = random.choice(msg_no_ulangtahun)
+        print('tidak ada yang ulang tahun hari ini')
 
-    return bot.reply_message(telegram_item,  msg)
+        if display_on_empty:
+            return bot.reply_message(telegram_item,  msg_no_ulangtahun)
+
