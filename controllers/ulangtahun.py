@@ -65,7 +65,7 @@ def action(telegram_item, display_on_empty=True):
 
         msg = """"{}"
 
-    Yeaaay, Happy Anniversary hari ini ({}) buat :
+    Yeaaay, Happy Birthday hari ini ({}) buat :
     {}
 
     Semoga sehat selalu, dimudahkan rezekinya, dilancarkan setiap urusannya, dan semakin ngabreet. Wish you all the best 🥳🎂❤️
